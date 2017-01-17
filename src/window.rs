@@ -1,6 +1,6 @@
 extern crate glium;
 
-use glium::{DisplayBuild, Surface};
+use glium::DisplayBuild;
 use glium::backend::glutin_backend::GlutinFacade;
 
 pub struct Window {
@@ -23,6 +23,7 @@ impl Window {
 pub fn new() -> Window {
     Window {
         display: glium::glutin::WindowBuilder::new()
+            .with_depth_buffer(24)
             .build_glium()
             .unwrap()
     }
