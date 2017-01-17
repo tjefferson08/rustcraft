@@ -44,6 +44,8 @@ impl Application {
 
         let window = window::new();
 
+        let positions = rectangle::positions(&window.display);
+
         let image = image::load(
             Cursor::new(&include_bytes!("./textures/grass.png")[..]),
             image::PNG
@@ -69,7 +71,6 @@ impl Application {
         ).unwrap();
 
         let mut t: f32 = -0.5;
-        let light = [-1.0, 0.4, 0.9f32];
 
         while window.is_open() {
 
@@ -79,21 +80,14 @@ impl Application {
                 t = -0.5;
             }
 
-            let matrix = [
-                [0.01, 0.0, 0.0, 0.0],
-                [0.0, 0.01, 0.0, 0.0],
-                [0.0, 0.0, 0.01, 0.0],
-                [0.0, 0.0, 0.0, 1.0f32]
-            ];
-
             let mut target = window.display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
 
             target.draw(
-                (&positions, &normals),
+                &positions,
                 &indices,
                 &program,
-                &uniform! { matrix: matrix, u_light: light },
+                &uniform! {},
                 &Default::default()
             ).unwrap();
 
