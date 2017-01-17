@@ -1,12 +1,20 @@
 extern crate glium;
+extern crate image;
 
 use game_state::{GameState, PlayingState};
-use glium::{DisplayBuild, Surface};
+use glium::Surface;
+use std::fs::File;
+use std::path::Path;
+use std::io::Read;
+use std::error::Error;
 use window;
-use teapot;
+use rectangle;
+use renderer;
+use std::io::Cursor;
+
 
 pub struct Application {
-    state_stack: Vec<Box<GameState>>,
+    state_stack: Vec<Box<GameState>>
 }
 
 impl Application {
@@ -36,44 +44,22 @@ impl Application {
 
         let window = window::new();
 
-        let positions = glium::VertexBuffer::new(&window.display, &teapot::VERTICES).unwrap();
-        let normals = glium::VertexBuffer::new(&window.display, &teapot::NORMALS).unwrap();
-        let indices = glium::IndexBuffer::new(
-            &window.display,
-            glium::index::PrimitiveType::TrianglesList,
-            &teapot::INDICES
-        ).unwrap();
+        let image = image::load(
+            Cursor::new(&include_bytes!("./textures/grass.png")[..]),
+            image::PNG
+        ).unwrap().to_rgba();
+        let image_dimensions = image.dimensions();
+        let image = glium::texture::RawImage2d::from_raw_rgba_reversed(
+            image.into_raw(),
+            image_dimensions
+        );
+        let texture = glium::texture::Texture2d::new(&window.display, image).unwrap();
 
-        let vertex_shader_src = r#"
-        #version 150
+        // let normals = rectangle::normals(&window.display);
+        let indices = rectangle::indices(&window.display);
 
-        in vec3 position;
-        in vec3 normal;
-        out vec3 v_normal;
-
-        uniform mat4 matrix;
-
-        void main() {
-            v_normal = transpose(inverse(mat3(matrix))) * normal;
-            gl_Position = matrix * vec4(position, 1.0);
-        }
-    "#;
-
-        let fragment_shader_src = r#"
-        #version 150
-
-        in vec3 v_normal;
-        out vec4 color;
-
-        uniform vec3 u_light;
-
-        void main() {
-            float brightness = dot(normalize(v_normal), normalize(u_light));
-            vec3 dark_color = vec3(0.6, 0.0, 0.0);
-            vec3 regular_color = vec3(1.0, 0.0, 0.0);
-            color = vec4(mix(dark_color, regular_color, brightness), 1.0);
-        }
-    "#;
+        let vertex_shader_src = &Application::get_shader("src/shaders/vertex_shader.glsl".to_string());
+        let fragment_shader_src = &Application::get_shader("src/shaders/fragment_shader.glsl".to_string());
 
         let program = glium::Program::from_source(
             &window.display,
@@ -128,6 +114,23 @@ impl Application {
     pub fn current_state(&self) -> Option<&Box<GameState>> {
         println!("current state");
         self.state_stack.last()
+    }
+
+    fn get_shader(filename: String) -> String {
+        println!("filename {}", filename);
+        let path = Path::new(&filename);
+        let display = path.display();
+
+        let mut file = match File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+            Ok(file) => file,
+        };
+
+        let mut s = String::new();
+        match file.read_to_string(&mut s) {
+           Err(why) => panic!("couldn't read {}: {}", display, why.description()),
+            Ok(_) => return s
+        }
     }
 }
 
