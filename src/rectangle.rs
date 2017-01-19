@@ -4,8 +4,12 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::VertexBuffer;
 use glium::IndexBuffer;
 
+pub struct Rectangle<'a> {
+    display: &'a GlutinFacade
+}
+
 #[derive(Copy, Clone)]
-pub struct Vertex {
+struct Vertex {
     position: (f32, f32),
     tex_coords: (f32, f32)
 }
@@ -26,14 +30,22 @@ const INDICES: [u16; 6] = [
     1, 2, 3
 ];
 
-pub fn positions(display: &GlutinFacade) -> VertexBuffer<Vertex> {
-    VertexBuffer::new(display, &VERTICES).unwrap()
-}
+impl<'a> Rectangle<'a> {
+    pub fn new(display: &'a GlutinFacade) -> Rectangle<'a> {
+        Rectangle {
+            display: display
+        }
+    }
 
-pub fn indices(display: &GlutinFacade) -> IndexBuffer<u16> {
-    IndexBuffer::new(
-        display,
-        glium::index::PrimitiveType::TrianglesList,
-        &INDICES
-    ).unwrap()
+    pub fn positions(&self) -> VertexBuffer<Vertex> {
+        VertexBuffer::new(self.display, &VERTICES).unwrap()
+    }
+
+    pub fn indices(&self) -> IndexBuffer<u16> {
+        IndexBuffer::new(
+            self.display,
+            glium::index::PrimitiveType::TrianglesList,
+            &INDICES
+        ).unwrap()
+    }
 }

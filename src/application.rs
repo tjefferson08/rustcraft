@@ -3,15 +3,12 @@ extern crate image;
 
 use game_state::{GameState, PlayingState};
 use glium::Surface;
-use std::fs::File;
-use std::path::Path;
-use std::io::Read;
-use std::error::Error;
 use window;
 use rectangle;
 use renderer;
+use shaders;
 use std::io::Cursor;
-
+use textures;
 
 pub struct Application {
     state_stack: Vec<Box<GameState>>
@@ -44,29 +41,20 @@ impl Application {
 
         let window = window::new();
 
-        let positions = rectangle::positions(&window.display);
+        let rect = rectangle::Rectangle::new(window.display());
+        let positions = rect.positions();
+        let indices = rect.indices();
+        // let normals = rectangle::normals(window.display());
 
-        let image = image::load(
-            Cursor::new(&include_bytes!("./textures/grass.png")[..]),
-            image::PNG
-        ).unwrap().to_rgba();
-        let image_dimensions = image.dimensions();
-        let image = glium::texture::RawImage2d::from_raw_rgba_reversed(
-            image.into_raw(),
-            image_dimensions
-        );
-        let texture = glium::texture::Texture2d::new(&window.display, image).unwrap();
+        let vertex_shader_src = shaders::load("src/shaders/vertex_shader.glsl");
+        let fragment_shader_src = shaders::load("src/shaders/fragment_shader.glsl");
 
-        // let normals = rectangle::normals(&window.display);
-        let indices = rectangle::indices(&window.display);
-
-        let vertex_shader_src = &Application::get_shader("src/shaders/vertex_shader.glsl".to_string());
-        let fragment_shader_src = &Application::get_shader("src/shaders/fragment_shader.glsl".to_string());
+        let texture = textures::load("src/textures/grass.png", window.display());
 
         let program = glium::Program::from_source(
-            &window.display,
-            vertex_shader_src,
-            fragment_shader_src,
+            window.display(),
+            &vertex_shader_src,
+            &fragment_shader_src,
             None
         ).unwrap();
 
@@ -80,18 +68,18 @@ impl Application {
                 t = -0.5;
             }
 
-            let mut target = window.display.draw();
-            target.clear_color(0.0, 0.0, 1.0, 1.0);
+            let mut master_renderer = renderer::Master::new(window.display().draw());
+            master_renderer.clear();
 
-            target.draw(
+            master_renderer.draw();
+            master_renderer.target.draw(
                 &positions,
                 &indices,
                 &program,
                 &uniform! {},
                 &Default::default()
             ).unwrap();
-
-            target.finish().unwrap();
+            master_renderer.update();
         }
     }
 
@@ -108,23 +96,6 @@ impl Application {
     pub fn current_state(&self) -> Option<&Box<GameState>> {
         println!("current state");
         self.state_stack.last()
-    }
-
-    fn get_shader(filename: String) -> String {
-        println!("filename {}", filename);
-        let path = Path::new(&filename);
-        let display = path.display();
-
-        let mut file = match File::open(&path) {
-            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
-            Ok(file) => file,
-        };
-
-        let mut s = String::new();
-        match file.read_to_string(&mut s) {
-           Err(why) => panic!("couldn't read {}: {}", display, why.description()),
-            Ok(_) => return s
-        }
     }
 }
 

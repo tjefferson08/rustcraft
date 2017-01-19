@@ -4,7 +4,7 @@ use glium::DisplayBuild;
 use glium::backend::glutin_backend::GlutinFacade;
 
 pub struct Window {
-    pub display: GlutinFacade
+    display: GlutinFacade
 }
 
 impl Window {
@@ -17,6 +17,10 @@ impl Window {
         }
 
         true
+    }
+
+    pub fn display(&self) -> &GlutinFacade {
+        &self.display
     }
 }
 
