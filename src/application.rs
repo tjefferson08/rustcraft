@@ -7,7 +7,6 @@ use window;
 use rectangle;
 use renderer;
 use shaders;
-use std::io::Cursor;
 use textures;
 
 pub struct Application {
@@ -42,13 +41,9 @@ impl Application {
         let window = window::new();
 
         let rect = rectangle::Rectangle::new(window.display());
-        let positions = rect.positions();
-        let indices = rect.indices();
-        // let normals = rectangle::normals(window.display());
 
         let vertex_shader_src = shaders::load("src/shaders/vertex_shader.glsl");
         let fragment_shader_src = shaders::load("src/shaders/fragment_shader.glsl");
-
         let texture = textures::load("src/textures/grass.png", window.display());
 
         let program = glium::Program::from_source(
@@ -71,14 +66,10 @@ impl Application {
             let mut master_renderer = renderer::Master::new(window.display().draw());
             master_renderer.clear();
 
-            master_renderer.draw();
-            master_renderer.target.draw(
-                &positions,
-                &indices,
-                &program,
-                &uniform! {},
-                &Default::default()
-            ).unwrap();
+            master_renderer.draw(
+                &rect,
+                &program
+            );
             master_renderer.update();
         }
     }

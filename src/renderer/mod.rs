@@ -1,15 +1,15 @@
 extern crate glium;
 extern crate image;
 
-use glium::backend::glutin_backend::GlutinFacade;
-use glium::Surface;
+use glium::{Frame,Program,Surface};
+use rectangle::Rectangle;
 
 pub struct Master {
-    pub target: glium::Frame
+    pub target: Frame
 }
 
 impl Master {
-    pub fn new(target: glium::Frame) -> Master {
+    pub fn new(target: Frame) -> Master {
         Master {
             target: target
         }
@@ -19,20 +19,18 @@ impl Master {
         self.target.clear_color(0.0, 0.0, 1.0, 1.0);
     }
 
-    pub fn draw(&mut self) -> () {
-        // println!("master render draw");
-        // target.draw(
-        //     &positions,
-        //     &indices,
-        //     &program,
-        //     &uniform! {},
-        //     &Default::default()
-        // ).unwrap();
-
+    pub fn draw(&mut self, rect: &Rectangle, program: &Program) {
+        let
+        self.target.draw(
+            &rect.positions(),
+            &rect.indices(),
+            program,
+            &uniform! {},
+            &Default::default()
+        ).unwrap()
     }
 
     pub fn update(self) -> () {
-        // println!("master render update");
         self.target.finish().unwrap();
     }
 

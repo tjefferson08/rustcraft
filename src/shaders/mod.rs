@@ -4,7 +4,6 @@ use std::io::Read;
 use std::error::Error;
 
 pub fn load(filename: &str) -> String {
-    println!("filename {}", filename);
     let path = Path::new(filename);
     let display = path.display();
 
