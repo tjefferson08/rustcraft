@@ -2,7 +2,6 @@ extern crate glium;
 extern crate image;
 
 use game_state::{GameState, PlayingState};
-use glium::Surface;
 use window;
 use rectangle;
 use renderer;

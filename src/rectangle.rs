@@ -5,17 +5,9 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::VertexBuffer;
 use glium::IndexBuffer;
 use cgmath::{
-    Basis3,
-    Decomposed,
-    Deg,
-    Matrix,
     Matrix3,
     Matrix4,
-    PerspectiveFov,
     Rad,
-    Rotation3,
-    SquareMatrix,
-    Transform,
     Vector3
 };
 
