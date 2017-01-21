@@ -6,3 +6,4 @@ authors = ["Travis Jefferson <traviscjefferson@gmail.com>"]
 [dependencies]
 glium = "*"
 image = "*"
+cgmath = "*"
