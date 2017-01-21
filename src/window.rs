@@ -27,6 +27,7 @@ impl Window {
 pub fn new() -> Window {
     Window {
         display: glium::glutin::WindowBuilder::new()
+            .with_dimensions(1024, 768)
             .with_depth_buffer(24)
             .build_glium()
             .unwrap()

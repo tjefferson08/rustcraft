@@ -7,8 +7,13 @@ out vec2 v_tex_coords;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 uniform mat4 projection_matrix;
+uniform float t;
 
 void main() {
   v_tex_coords = tex_coords;
-  gl_Position = vec4(position, 1.0);
+  gl_Position =
+    projection_matrix *
+    view_matrix *
+    model_matrix *
+    vec4(position, 1.0);
 }
