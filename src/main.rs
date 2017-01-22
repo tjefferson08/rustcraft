@@ -7,12 +7,12 @@ mod application;
 mod window;
 mod game_state;
 mod renderer;
-mod rectangle;
+mod model;
 mod shaders;
 mod textures;
 mod entity;
 
 fn main() {
-    let app = application::Application::new();
+    let mut app = application::Application::new();
     app.run_game_loop();
 }

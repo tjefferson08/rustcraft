@@ -2,59 +2,33 @@ extern crate glium;
 extern crate image;
 
 use game_state::{GameState, PlayingState};
-use window;
-use rectangle;
+use window::Window;
 use renderer;
-use shaders;
 use textures;
 
 pub struct Application {
-    state_stack: Vec<Box<GameState>>
+    state_stack: Vec<Box<GameState>>,
+    pub window: Window
 }
 
 impl Application {
     pub fn new() -> Application {
         let mut app = Application {
-            state_stack: Vec::new()
+            state_stack: Vec::new(),
+            window: Window::new()
         };
-
-        app.push_state(
-            Box::new(PlayingState::new(1))
-        );
-
+        let playing_state: PlayingState = PlayingState::new();
+        let boxed_state: Box<PlayingState> = Box::new(playing_state);
+        app.push_state(boxed_state);
         app
     }
 
-    pub fn run_game_loop(&self) -> () {
-        let state = self.current_state();
-        match state {
-            None => println!("state stack is empty"),
-            Some(current_state) => {
-                println!("current state is real");
-                current_state.input();
-                current_state.update();
-                current_state.draw();
-            }
-        }
-
-        let window = window::new();
-
-        let rect = rectangle::Rectangle::new(window.display());
-
-        let vertex_shader_src = shaders::load("src/shaders/vertex_shader.glsl");
-        let fragment_shader_src = shaders::load("src/shaders/fragment_shader.glsl");
-        let texture = textures::load("src/textures/grass.png", window.display());
-
-        let program = glium::Program::from_source(
-            window.display(),
-            &vertex_shader_src,
-            &fragment_shader_src,
-            None
-        ).unwrap();
+    pub fn run_game_loop(&mut self) -> () {
+        let texture = textures::load("src/textures/grass.png", self.window.display());
 
         let mut t: f32 = -0.5;
 
-        while window.is_open() {
+        while self.window.is_open() {
 
             // we update `t`
             t += 0.0002;
@@ -62,14 +36,19 @@ impl Application {
                 t = -0.5;
             }
 
-            let mut master_renderer = renderer::Master::new(window.display().draw());
-            master_renderer.clear();
+            // do immutable things with self
+            {
+                let current_state = self.current_state();
+                let mut master_renderer = renderer::Master::new(self.window.display(), self.window.display().draw());
+                master_renderer.clear();
+                current_state.input();
+                current_state.draw(&mut master_renderer);
+                master_renderer.update();
+            }
 
-            master_renderer.draw(
-                &rect,
-                &program
-            );
-            master_renderer.update();
+            // now we can do mutable things
+            let mut st = self.current_state_mut();
+            st.update();
         }
     }
 
@@ -83,9 +62,12 @@ impl Application {
         self.state_stack.pop();
     }
 
-    pub fn current_state(&self) -> Option<&Box<GameState>> {
-        println!("current state");
-        self.state_stack.last()
+    pub fn current_state(&self) -> &Box<GameState> {
+        self.state_stack.last().unwrap()
+    }
+
+    pub fn current_state_mut(&mut self) -> &mut Box<GameState> {
+        self.state_stack.last_mut().unwrap()
     }
 }
 

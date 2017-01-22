@@ -1,35 +1,55 @@
-struct SharedState {
-    data: u32
-}
+use std::vec::Vec;
+use model::{Model,Rectangle};
+use renderer::Master;
 
 pub struct PlayingState {
-    state: SharedState
+    models: Vec<Box<Model>>
 }
 
 pub trait GameState {
     fn input(&self) -> ();
-    fn update(&self) -> ();
-    fn draw(&self) -> ();
+    fn update(&mut self) -> ();
+    fn draw(&self, renderer: &mut Master) -> ();
 }
 
 impl PlayingState {
-    pub fn new(data: u32) -> PlayingState {
-        PlayingState {
-            state: SharedState { data: data }
-        }
+    pub fn new() -> PlayingState  {
+
+        let mut playing_state = PlayingState {
+            models: Vec::new(),
+        };
+
+        let mut rect1: Rectangle = Rectangle::new();
+        let mut rect2: Rectangle = Rectangle::from_coords((1.0, 1.0, -2.0), (0.0, 0.0, 1.0));
+        playing_state.models.push(
+            Box::new(rect1)
+        );
+        playing_state.models.push(
+            Box::new(rect2)
+        );
+
+        let immut_ps = playing_state;
+        immut_ps
     }
 }
 
 impl GameState for PlayingState {
     fn input(&self) {
-        println!("input, {}", &self.state.data)
+        // println!("input");
     }
 
-    fn update(&self) {
-        println!("update, {}", &self.state.data)
+    fn update(&mut self) {
+        for mut model in self.models.iter_mut() {
+            // model.update_position((0.01, 0.0, 0.0));
+            model.update_rotation((0.01, 0.01, 0.0));
+        }
     }
 
-    fn draw(&self) {
-        println!("draw, {}", &self.state.data)
+    fn draw(&self, renderer: &mut Master) {
+        for  model in self.models.iter() {
+            renderer.draw(
+                model.as_ref()
+            );
+        }
     }
 }

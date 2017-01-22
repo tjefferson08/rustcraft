@@ -2,8 +2,8 @@ extern crate glium;
 extern crate cgmath;
 
 use glium::backend::glutin_backend::GlutinFacade;
-use glium::VertexBuffer;
-use glium::IndexBuffer;
+use glium::{IndexBuffer,VertexBuffer};
+use model::{Model,Vertex};
 use cgmath::{
     Matrix3,
     Matrix4,
@@ -11,21 +11,14 @@ use cgmath::{
     Vector3
 };
 
-pub struct Rectangle<'a> {
-    display: &'a GlutinFacade,
+// pub struct Rectangle<'a> {
+pub struct Rectangle {
+    // display: &'a GlutinFacade,
 
     // (x, y, z)
     position: (f32, f32, f32),
     rotation: (f32, f32, f32)
 }
-
-#[derive(Copy, Clone)]
-pub struct Vertex {
-    position: (f32, f32, f32),
-    tex_coords: (f32, f32)
-}
-
-implement_vertex!(Vertex, position, tex_coords);
 
 const VERTICES: [Vertex; 5] = [
     Vertex { position: (0.0,  0.0, 0.0), tex_coords: (0.0, 0.0) },   // dummy vector because model indices start at 1
@@ -41,30 +34,47 @@ const INDICES: [u16; 6] = [
     1, 2, 3
 ];
 
-impl<'a> Rectangle<'a> {
-    pub fn new(display: &'a GlutinFacade) -> Rectangle<'a> {
+// impl<'a> Rectangle<'a> {
+impl Rectangle {
+    // pub fn new(display: &'a GlutinFacade) -> Rectangle<'a> {
+    pub fn new() -> Rectangle {
         Rectangle {
-            display: display,
+            // display: display,
             position: (0.0, 0.0, -2.0),
-            rotation: (0.0, 0.0, 0.0)
+            rotation: (0.0, 0.0, 3.140)
+        }
+    }
+
+    pub fn from_coords(pos: (f32, f32, f32), rot: (f32, f32, f32)) -> Rectangle {
+        Rectangle {
+            // display: display,
+            position: pos,
+            rotation: rot
         }
     }
 }
 
-pub trait Model {
-    fn positions(&self) -> VertexBuffer<Vertex>;
-    fn indices(&self) -> IndexBuffer<u16>;
-    fn model_matrix(&self) -> [[f32; 4]; 4];
-}
-
-impl <'a>Model for Rectangle<'a> {
-    fn positions(&self) -> VertexBuffer<Vertex> {
-        VertexBuffer::new(self.display, &VERTICES).unwrap()
+// impl <'a>Model for Rectangle<'a> {
+impl Model for Rectangle {
+    fn update_position(&mut self, new_position: (f32, f32, f32)) -> () {
+        self.position.0 += new_position.0;
+        self.position.1 += new_position.1;
+        self.position.2 += new_position.2;
     }
 
-    fn indices(&self) -> IndexBuffer<u16> {
+    fn update_rotation(&mut self, new_rotation: (f32, f32, f32)) -> () {
+        self.rotation.0 += new_rotation.0;
+        self.rotation.1 += new_rotation.1;
+        self.rotation.2 += new_rotation.2;
+    }
+
+    fn positions(&self, disp: &GlutinFacade) -> VertexBuffer<Vertex> {
+        VertexBuffer::new(disp, &VERTICES).unwrap()
+    }
+
+    fn indices(&self, disp: &GlutinFacade) -> IndexBuffer<u16> {
         IndexBuffer::new(
-            self.display,
+            disp,
             glium::index::PrimitiveType::TrianglesList,
             &INDICES
         ).unwrap()
@@ -91,18 +101,4 @@ impl <'a>Model for Rectangle<'a> {
     }
 }
 
-fn pretty_print4(m: Matrix4<f32>) {
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.x, m.y.x, m.z.x, m.w.x);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.y, m.y.y, m.z.y, m.w.y);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.z, m.y.z, m.z.z, m.w.z);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10} ", m.x.w, m.y.w, m.z.w, m.w.w);
-    println!("");
-}
-
-fn pretty_print3(m: Matrix3<f32>) {
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.x, m.y.x, m.z.x);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.y, m.y.y, m.z.y);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.z, m.y.z, m.z.z);
-    println!("");
-}
 

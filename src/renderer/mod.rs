@@ -3,20 +3,34 @@ extern crate image;
 extern crate cgmath;
 
 use glium::{Frame,Program,Surface};
-use rectangle::Rectangle;
+use model::{Model};
 use cgmath::*;
 use entity::Entity;
 use std::ops::Neg;
-use rectangle::Model;
+use glium::backend::glutin_backend::GlutinFacade;
+use window::{HEIGHT as WINDOW_HEIGHT, WIDTH as WINDOW_WIDTH};
+use shaders;
 
-pub struct Master {
-    pub target: Frame
+pub struct Master<'a>{
+    display: &'a GlutinFacade,
+    pub target: Frame,
+    program: Program
 }
 
-impl Master {
-    pub fn new(target: Frame) -> Master {
+impl<'a> Master<'a> {
+    pub fn new(display: &GlutinFacade, target: Frame) -> Master {
+        let vertex_shader_src = shaders::load("src/shaders/vertex_shader.glsl");
+        let fragment_shader_src = shaders::load("src/shaders/fragment_shader.glsl");
+
         Master {
-            target: target
+            display: display,
+            target: target,
+            program: Program::from_source(
+                display,
+                &vertex_shader_src,
+                &fragment_shader_src,
+                None
+            ).unwrap()
         }
     }
 
@@ -24,18 +38,18 @@ impl Master {
         self.target.clear_color(0.0, 0.0, 1.0, 1.0);
     }
 
-    pub fn draw(&mut self, rect: &Rectangle, program: &Program) {
+    pub fn draw(&mut self, model: &Model) {
         let camera = Entity {
-            position: (0.0, 0.0, 0.0),
+            position: (0.0, 0.0, -1.0),
             rotation: (0.0, 0.0, 0.0)
         };
 
         self.target.draw(
-            &rect.positions(),
-            &rect.indices(),
-            program,
+            &model.positions(self.display),
+            &model.indices(self.display),
+            &self.program,
             &uniform! {
-                model_matrix: rect.model_matrix(),
+                model_matrix: model.model_matrix(),
                 view_matrix: view_matrix(&camera),
                 projection_matrix: projection_matrix()
             },
@@ -74,7 +88,7 @@ pub fn projection_matrix() -> [[f32; 4]; 4] {
     let mat = Matrix4::from(
         PerspectiveFov {
             fovy: Deg(120.0f32).into(),
-            aspect: 1024.0 / 768.0,
+            aspect: WINDOW_WIDTH / WINDOW_HEIGHT,
             near: 0.001,
             far: 1000.0
         }
@@ -82,19 +96,4 @@ pub fn projection_matrix() -> [[f32; 4]; 4] {
     mat.into()
 }
 
-
-fn pretty_print4(m: Matrix4<f32>) {
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.x, m.y.x, m.z.x, m.w.x);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.y, m.y.y, m.z.y, m.w.y);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10},", m.x.z, m.y.z, m.z.z, m.w.z);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}, {:>13.10} ", m.x.w, m.y.w, m.z.w, m.w.w);
-    println!("");
-}
-
-fn pretty_print3(m: Matrix3<f32>) {
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.x, m.y.x, m.z.x);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.y, m.y.y, m.z.y);
-    println!(" {:>13.10}, {:>13.10}, {:>13.10}", m.x.z, m.y.z, m.z.z);
-    println!("");
-}
 
