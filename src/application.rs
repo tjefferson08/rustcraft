@@ -4,6 +4,7 @@ extern crate image;
 use game_state::{GameState, PlayingState};
 use window::Window;
 use std::time::Instant;
+use glium::glutin;
 use renderer;
 use textures;
 
@@ -30,6 +31,9 @@ impl Application {
         let mut t: f32 = -0.5;
 
         let now = Instant::now();
+        let mut last_mouse = (0, 0);
+        let mut current_mouse = (0, 0);
+
         loop {
             t += 0.0002;
             if t > 0.5 {
@@ -53,9 +57,14 @@ impl Application {
             for event in events {
                 match event {
                     glium::glutin::Event::Closed => return,
-                    ev => st.process_event(ev, delta_t)
+                    glutin::Event::MouseMoved(x, y) => {
+                        current_mouse = (x, y);
+                    },
+                    ev => st.process_event(ev, delta_t),
                 }
             }
+            st.process_mouse_move(((last_mouse.0 - current_mouse.0), (current_mouse.1 - last_mouse.1)));
+            last_mouse = current_mouse;
             st.update();
         }
     }

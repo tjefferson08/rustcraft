@@ -14,6 +14,7 @@ pub struct PlayingState {
 pub trait GameState {
     fn input(&self) -> ();
     fn process_event(&mut self, event: Event, delta_t: f32) -> ();
+    fn process_mouse_move(&mut self, deflection: (i32, i32)) -> ();
     fn update(&mut self) -> ();
     fn draw(&self, renderer: &mut Master, delta_t: f32) -> ();
 }
@@ -54,28 +55,28 @@ impl GameState for PlayingState {
                 _,
                 Some(glutin::VirtualKeyCode::Down)
             ) => {
-                self.camera.update((0.0, -0.1, 0.0));
+                self.camera.update_position((0.0, -0.1, 0.0));
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
                 _,
                 Some(glutin::VirtualKeyCode::Up)
             ) => {
-                self.camera.update((0.0, 0.1, 0.0));
+                self.camera.update_position((0.0, 0.1, 0.0));
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
                 _,
                 Some(glutin::VirtualKeyCode::Left)
             ) => {
-                self.camera.update((-0.1, 0.0, 0.0));
+                self.camera.update_position((-0.1, 0.0, 0.0));
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
                 _,
                 Some(glutin::VirtualKeyCode::Right)
             ) => {
-                self.camera.update((0.1, 0.0, 0.0));
+                self.camera.update_position((0.1, 0.0, 0.0));
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
@@ -87,7 +88,7 @@ impl GameState for PlayingState {
                     0.0,
                     -&self.camera.entity.rotation.1.cos() * speed * delta_t
                 );
-                self.camera.update(delta_pos);
+                self.camera.update_position(delta_pos);
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
@@ -99,7 +100,7 @@ impl GameState for PlayingState {
                     0.0,
                     -(&self.camera.entity.rotation.1 + (90.0f32).to_radians()).cos() * speed * delta_t
                 );
-                self.camera.update(delta_pos);
+                self.camera.update_position(delta_pos);
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
@@ -111,7 +112,7 @@ impl GameState for PlayingState {
                     0.0,
                     &self.camera.entity.rotation.1.cos() * speed * delta_t
                 );
-                self.camera.update(delta_pos);
+                self.camera.update_position(delta_pos);
             },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
@@ -123,16 +124,22 @@ impl GameState for PlayingState {
                     0.0,
                     (&self.camera.entity.rotation.1 + (90.0f32)).cos() * speed * delta_t
                 );
-                self.camera.update(delta_pos);
+                self.camera.update_position(delta_pos);
             },
             _ => ()
         }
     }
 
+    fn process_mouse_move(&mut self, deflection: (i32, i32)) -> () {
+        self.camera.update_rotation(
+            (0.01 * (deflection.1 as f32), 0.01 * (deflection.0 as f32), 0.0)
+        );
+    }
+
     fn update(&mut self) {
         for mut model in self.models.iter_mut() {
             // model.update_position((0.01, 0.0, 0.0));
-            model.update_rotation((0.01, 0.01, 0.0));
+            // model.update_rotation((0.01, 0.01, 0.0));
         }
     }
 

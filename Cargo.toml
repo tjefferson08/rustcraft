@@ -1,9 +1,9 @@
 [package]
-name = "rustcraft"
-version = "0.1.0"
-authors = ["Travis Jefferson <traviscjefferson@gmail.com>"]
+name                    = "rustcraft"
+version                 = "0.1.0"
+authors                 = ["Travis Jefferson <traviscjefferson@gmail.com>"]
 
 [dependencies]
-glium = "*"
-image = "*"
-cgmath = "*"
+glium                   = "*"
+image                   = "*"
+cgmath                  = "*"

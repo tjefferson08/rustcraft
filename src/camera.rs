@@ -9,6 +9,7 @@ use cgmath::{
 };
 use std::ops::Neg;
 use window::{HEIGHT as WINDOW_HEIGHT, WIDTH as WINDOW_WIDTH};
+use constants::*;
 
 pub struct Camera {
     pub entity: Entity
@@ -24,10 +25,16 @@ impl Camera {
         }
     }
 
-    pub fn update(&mut self, pos: (f32, f32, f32)) -> () {
+    pub fn update_position(&mut self, pos: (f32, f32, f32)) -> () {
         self.entity.position.0 += pos.0;
         self.entity.position.1 += pos.1;
         self.entity.position.2 += pos.2;
+    }
+
+    pub fn update_rotation(&mut self, rot: (f32, f32, f32)) -> () {
+        self.entity.rotation.0 = (self.entity.rotation.0 + rot.0).max(DEG_TO_RAD_90);
+        self.entity.rotation.1 = (self.entity.rotation.1 + rot.1).max(DEG_TO_RAD_90);
+        self.entity.rotation.2 = (self.entity.rotation.2 + rot.2).max(DEG_TO_RAD_90);
     }
 
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {
