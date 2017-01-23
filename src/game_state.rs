@@ -4,6 +4,7 @@ use camera::Camera;
 use renderer::Master;
 use glium::glutin::Event;
 use glium::glutin;
+use std::f32::consts;
 
 pub struct PlayingState {
     models: Vec<Box<Model>>,
@@ -12,9 +13,9 @@ pub struct PlayingState {
 
 pub trait GameState {
     fn input(&self) -> ();
-    fn process_event(&mut self, event: Event) -> ();
+    fn process_event(&mut self, event: Event, delta_t: f32) -> ();
     fn update(&mut self) -> ();
-    fn draw(&self, renderer: &mut Master) -> ();
+    fn draw(&self, renderer: &mut Master, delta_t: f32) -> ();
 }
 
 impl PlayingState {
@@ -44,7 +45,9 @@ impl GameState for PlayingState {
         // println!("input");
     }
 
-    fn process_event(&mut self, event: Event) -> () {
+    fn process_event(&mut self, event: Event, delta_t: f32) -> () {
+        let speed = 0.2;
+        println!("speed, deltat: {} {}", speed, delta_t);
         match event {
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
@@ -74,6 +77,54 @@ impl GameState for PlayingState {
             ) => {
                 self.camera.update((0.1, 0.0, 0.0));
             },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::W)
+            ) => {
+                let delta_pos = (
+                    -&self.camera.entity.rotation.1.sin() * speed * delta_t,
+                    0.0,
+                    -&self.camera.entity.rotation.1.cos() * speed * delta_t
+                );
+                self.camera.update(delta_pos);
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::A)
+            ) => {
+                let delta_pos = (
+                    -(&self.camera.entity.rotation.1 + (90.0f32).to_radians()).sin() * speed * delta_t,
+                    0.0,
+                    -(&self.camera.entity.rotation.1 + (90.0f32).to_radians()).cos() * speed * delta_t
+                );
+                self.camera.update(delta_pos);
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::S)
+            ) => {
+                let delta_pos = (
+                    &self.camera.entity.rotation.1.sin() * speed * delta_t,
+                    0.0,
+                    &self.camera.entity.rotation.1.cos() * speed * delta_t
+                );
+                self.camera.update(delta_pos);
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::D)
+            ) => {
+                let delta_pos = (
+                    (&self.camera.entity.rotation.1 + (90.0f32).to_radians()).sin() * speed * delta_t,
+                    0.0,
+                    (&self.camera.entity.rotation.1 + (90.0f32)).cos() * speed * delta_t
+                );
+                self.camera.update(delta_pos);
+            },
             _ => ()
         }
     }
@@ -85,7 +136,7 @@ impl GameState for PlayingState {
         }
     }
 
-    fn draw(&self, renderer: &mut Master) {
+    fn draw(&self, renderer: &mut Master, delta_t: f32) {
         for  model in self.models.iter() {
             renderer.draw(
                 model.as_ref(),

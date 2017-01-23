@@ -1,7 +1,7 @@
 extern crate glium;
 
 use glium::DisplayBuild;
-use glium::backend::glutin_backend::{GlutinFacade,PollEventsIter};
+use glium::backend::glutin_backend::{GlutinFacade};
 
 pub struct Window {
     display: GlutinFacade

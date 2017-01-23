@@ -3,7 +3,7 @@ extern crate image;
 
 use game_state::{GameState, PlayingState};
 use window::Window;
-use camera::Camera;
+use std::time::Instant;
 use renderer;
 use textures;
 
@@ -29,11 +29,13 @@ impl Application {
 
         let mut t: f32 = -0.5;
 
+        let now = Instant::now();
         loop {
             t += 0.0002;
             if t > 0.5 {
                 t = -0.5;
             }
+            let delta_t = now.elapsed().as_secs() as f32;
 
             // do immutable things with self
             {
@@ -41,7 +43,7 @@ impl Application {
                 let mut master_renderer = renderer::Master::new(window.display(), window.display().draw());
                 master_renderer.clear();
                 current_state.input();
-                current_state.draw(&mut master_renderer);
+                current_state.draw(&mut master_renderer, delta_t);
                 master_renderer.update();
             }
 
@@ -51,7 +53,7 @@ impl Application {
             for event in events {
                 match event {
                     glium::glutin::Event::Closed => return,
-                    ev => st.process_event(ev)
+                    ev => st.process_event(ev, delta_t)
                 }
             }
             st.update();

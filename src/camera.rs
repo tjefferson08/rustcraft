@@ -9,10 +9,9 @@ use cgmath::{
 };
 use std::ops::Neg;
 use window::{HEIGHT as WINDOW_HEIGHT, WIDTH as WINDOW_WIDTH};
-use glium::backend::glutin_backend::PollEventsIter;
 
 pub struct Camera {
-    entity: Entity
+    pub entity: Entity
 }
 
 impl Camera {
