@@ -21,6 +21,7 @@ impl Window {
         }
     }
 
+    // TODO take events as a param (so camera can use it too)
     pub fn is_open(&self) -> bool {
         for ev in self.display.poll_events() {
             match ev {

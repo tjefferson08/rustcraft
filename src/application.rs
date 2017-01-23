@@ -3,6 +3,7 @@ extern crate image;
 
 use game_state::{GameState, PlayingState};
 use window::Window;
+use camera::Camera;
 use renderer;
 use textures;
 
@@ -30,7 +31,6 @@ impl Application {
 
         while self.window.is_open() {
 
-            // we update `t`
             t += 0.0002;
             if t > 0.5 {
                 t = -0.5;

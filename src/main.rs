@@ -11,6 +11,7 @@ mod model;
 mod shaders;
 mod textures;
 mod entity;
+mod camera;
 
 fn main() {
     let mut app = application::Application::new();

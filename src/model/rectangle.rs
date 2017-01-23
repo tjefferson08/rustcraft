@@ -21,7 +21,7 @@ pub struct Rectangle {
 }
 
 const VERTICES: [Vertex; 5] = [
-    Vertex { position: (0.0,  0.0, 0.0), tex_coords: (0.0, 0.0) },   // dummy vector because model indices start at 1
+    Vertex { position: (0.0,  0.0, 0.0), tex_coords: (0.0, 0.0) },  // dummy vertexbecause model indices start at 1
 
     Vertex { position: (-0.5, -0.5, 0.0), tex_coords: (0.0, 0.0) }, // lower left
     Vertex { position: ( 0.5, -0.5, 0.0), tex_coords: (0.0, 1.0) }, // lower right
