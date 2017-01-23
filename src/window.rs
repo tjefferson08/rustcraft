@@ -1,7 +1,7 @@
 extern crate glium;
 
 use glium::DisplayBuild;
-use glium::backend::glutin_backend::GlutinFacade;
+use glium::backend::glutin_backend::{GlutinFacade,PollEventsIter};
 
 pub struct Window {
     display: GlutinFacade
@@ -21,17 +21,6 @@ impl Window {
         }
     }
 
-    // TODO take events as a param (so camera can use it too)
-    pub fn is_open(&self) -> bool {
-        for ev in self.display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return false,
-                _ => ()
-            }
-        }
-
-        true
-    }
 
     pub fn display(&self) -> &GlutinFacade {
         &self.display

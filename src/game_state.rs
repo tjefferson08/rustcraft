@@ -2,6 +2,8 @@ use std::vec::Vec;
 use model::{Model,Rectangle};
 use camera::Camera;
 use renderer::Master;
+use glium::glutin::Event;
+use glium::glutin;
 
 pub struct PlayingState {
     models: Vec<Box<Model>>,
@@ -10,6 +12,7 @@ pub struct PlayingState {
 
 pub trait GameState {
     fn input(&self) -> ();
+    fn process_event(&mut self, event: Event) -> ();
     fn update(&mut self) -> ();
     fn draw(&self, renderer: &mut Master) -> ();
 }
@@ -41,12 +44,45 @@ impl GameState for PlayingState {
         // println!("input");
     }
 
+    fn process_event(&mut self, event: Event) -> () {
+        match event {
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::Down)
+            ) => {
+                self.camera.update((0.0, -0.1, 0.0));
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::Up)
+            ) => {
+                self.camera.update((0.0, 0.1, 0.0));
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::Left)
+            ) => {
+                self.camera.update((-0.1, 0.0, 0.0));
+            },
+            glutin::Event::KeyboardInput(
+                glutin::ElementState::Pressed,
+                _,
+                Some(glutin::VirtualKeyCode::Right)
+            ) => {
+                self.camera.update((0.1, 0.0, 0.0));
+            },
+            _ => ()
+        }
+    }
+
     fn update(&mut self) {
         for mut model in self.models.iter_mut() {
             // model.update_position((0.01, 0.0, 0.0));
             model.update_rotation((0.01, 0.01, 0.0));
         }
-        &camera
     }
 
     fn draw(&self, renderer: &mut Master) {

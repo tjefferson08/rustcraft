@@ -9,6 +9,7 @@ use cgmath::{
 };
 use std::ops::Neg;
 use window::{HEIGHT as WINDOW_HEIGHT, WIDTH as WINDOW_WIDTH};
+use glium::backend::glutin_backend::PollEventsIter;
 
 pub struct Camera {
     entity: Entity
@@ -24,7 +25,11 @@ impl Camera {
         }
     }
 
-    pub fn update(
+    pub fn update(&mut self, pos: (f32, f32, f32)) -> () {
+        self.entity.position.0 += pos.0;
+        self.entity.position.1 += pos.1;
+        self.entity.position.2 += pos.2;
+    }
 
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {
         let (pos_x, pos_y, pos_z) = self.entity.position;

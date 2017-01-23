@@ -8,15 +8,13 @@ use renderer;
 use textures;
 
 pub struct Application {
-    state_stack: Vec<Box<GameState>>,
-    pub window: Window
+    state_stack: Vec<Box<GameState>>
 }
 
 impl Application {
     pub fn new() -> Application {
         let mut app = Application {
-            state_stack: Vec::new(),
-            window: Window::new()
+            state_stack: Vec::new()
         };
         let playing_state: PlayingState = PlayingState::new();
         let boxed_state: Box<PlayingState> = Box::new(playing_state);
@@ -25,12 +23,13 @@ impl Application {
     }
 
     pub fn run_game_loop(&mut self) -> () {
-        let texture = textures::load("src/textures/grass.png", self.window.display());
+        let window = Window::new();
+
+        let texture = textures::load("src/textures/grass.png", window.display());
 
         let mut t: f32 = -0.5;
 
-        while self.window.is_open() {
-
+        loop {
             t += 0.0002;
             if t > 0.5 {
                 t = -0.5;
@@ -39,7 +38,7 @@ impl Application {
             // do immutable things with self
             {
                 let current_state = self.current_state();
-                let mut master_renderer = renderer::Master::new(self.window.display(), self.window.display().draw());
+                let mut master_renderer = renderer::Master::new(window.display(), window.display().draw());
                 master_renderer.clear();
                 current_state.input();
                 current_state.draw(&mut master_renderer);
@@ -47,7 +46,14 @@ impl Application {
             }
 
             // now we can do mutable things
+            let events = window.display().poll_events();
             let mut st = self.current_state_mut();
+            for event in events {
+                match event {
+                    glium::glutin::Event::Closed => return,
+                    ev => st.process_event(ev)
+                }
+            }
             st.update();
         }
     }
