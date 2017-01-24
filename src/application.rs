@@ -57,6 +57,11 @@ impl Application {
             for event in events {
                 match event {
                     glium::glutin::Event::Closed => return,
+                    glutin::Event::KeyboardInput(
+                        glutin::ElementState::Pressed,
+                        _,
+                        Some(glutin::VirtualKeyCode::Escape)
+                    ) => return,
                     glutin::Event::MouseMoved(x, y) => {
                         current_mouse = (x, y);
                     },

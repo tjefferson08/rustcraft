@@ -47,7 +47,7 @@ impl GameState for PlayingState {
     }
 
     fn process_event(&mut self, event: Event, delta_t: f32) -> () {
-        let speed = 0.2;
+        let speed = 0.05;
         println!("speed, deltat: {} {}", speed, delta_t);
         match event {
             glutin::Event::KeyboardInput(
