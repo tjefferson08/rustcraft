@@ -68,9 +68,16 @@ impl Application {
                     ev => current_state.process_event(ev, delta_t),
                 }
             }
-            current_state.process_mouse_move(((last_mouse.0 - current_mouse.0), (current_mouse.1 - last_mouse.1)));
+            current_state.process_mouse_move(
+                (
+                    current_mouse.0 - last_mouse.0,
+                    current_mouse.1 - last_mouse.1
+                ),
+                delta_t
+            );
             last_mouse = current_mouse;
-            current_state.update();
+            current_state.update(delta_t);
+            // window.reset_cursor_position();
         }
     }
 

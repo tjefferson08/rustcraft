@@ -25,23 +25,66 @@ impl Camera {
         }
     }
 
+    pub fn reset(&mut self) -> () {
+        self.entity.position = (0.0, 0.0, 0.0);
+        self.entity.rotation = (0.0, 0.0, 0.0);
+    }
+
     pub fn update_position(&mut self, pos: (f32, f32, f32)) -> () {
         self.entity.position.0 += pos.0;
-        self.entity.position.1 += pos.1;
+        // self.entity.position.1 += pos.1;
         self.entity.position.2 += pos.2;
     }
 
     pub fn update_rotation(&mut self, rot: (f32, f32, f32)) -> () {
-        self.entity.rotation.0 = self.entity.rotation.0 + rot.0;
-        if self.entity.rotation.0 > DEG_TO_RAD_180 {
-            self.entity.rotation.0 = DEG_TO_RAD_180
+        let print = false;
+        if print && (rot.0 > 0.0 || rot.1 > 0.0 || rot.2 > 0.0) {
+            println!(
+                "about to rotate camera by {} {} {}",
+                rot.0,
+                rot.1,
+                rot.2
+            );
+            println!(
+                "camera rotation before update {} {} {}",
+                self.entity.rotation.0,
+                self.entity.rotation.1,
+                self.entity.rotation.2
+            );
         }
-        if self.entity.rotation.0 < -DEG_TO_RAD_180 {
-            self.entity.rotation.0 = -DEG_TO_RAD_180
+        self.entity.rotation.0 = self.entity.rotation.0 + rot.0;
+
+        // up/down camera should stop at top/bottom
+        if self.entity.rotation.0 > DEG_TO_RAD_90 {
+            self.entity.rotation.0 = DEG_TO_RAD_90
+        }
+        if self.entity.rotation.0 < -DEG_TO_RAD_90 {
+            self.entity.rotation.0 = -DEG_TO_RAD_90
+        }
+
+        // left/right camera should not stop, but let's keep values
+        // b/t 0 and 2pi to stay sane
+        if self.entity.rotation.1 < 0.0 {
+            self.entity.rotation.1 = DEG_TO_RAD_360;
+        }
+
+        if self.entity.rotation.1 > DEG_TO_RAD_360 {
+            self.entity.rotation.1 = 0.0;
         }
 
         self.entity.rotation.1 = self.entity.rotation.1 + rot.1;
-        self.entity.rotation.2 = self.entity.rotation.2 + rot.2;
+
+        // let's not worry about rotating the camera around Z axis
+        // self.entity.rotation.2 = self.entity.rotation.2 + rot.2;
+
+        if print && (rot.0 > 0.0 || rot.1 > 0.0 || rot.2 > 0.0) {
+            println!(
+                "camera rotation after update {} {} {}",
+                self.entity.rotation.0,
+                self.entity.rotation.1,
+                self.entity.rotation.2
+            );
+        }
     }
 
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {

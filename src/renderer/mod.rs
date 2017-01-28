@@ -32,10 +32,21 @@ impl<'a> Master<'a> {
     }
 
     pub fn clear(&mut self) -> () {
-        self.target.clear_color(0.0, 0.0, 1.0, 1.0);
+        self.target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
     }
 
     pub fn draw(&mut self, model: &Model, camera: &Camera) {
+        let draw_params = glium::DrawParameters {
+            depth: glium::Depth {
+
+                // choose CLOSER things to draw
+                test: glium::draw_parameters::DepthTest::IfLess,
+                write: true,
+                .. Default::default()
+            },
+            .. Default::default()
+        };
+
         self.target.draw(
             &model.positions(self.display),
             &model.indices(self.display),
@@ -45,7 +56,7 @@ impl<'a> Master<'a> {
                 view_matrix: camera.view_matrix(),
                 projection_matrix: camera.projection_matrix()
             },
-            &Default::default()
+            &draw_params
         ).unwrap()
     }
 
