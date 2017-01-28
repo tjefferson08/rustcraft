@@ -1,9 +1,11 @@
 pub use self::rectangle::Rectangle;
+pub use self::cube::Cube;
 
 use glium::{IndexBuffer,VertexBuffer};
 use glium::backend::glutin_backend::GlutinFacade;
 
 mod rectangle;
+mod cube;
 
 #[derive(Copy, Clone)]
 pub struct Vertex {
