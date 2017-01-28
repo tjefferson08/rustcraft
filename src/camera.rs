@@ -32,9 +32,16 @@ impl Camera {
     }
 
     pub fn update_rotation(&mut self, rot: (f32, f32, f32)) -> () {
-        self.entity.rotation.0 = (self.entity.rotation.0 + rot.0).max(DEG_TO_RAD_90);
-        self.entity.rotation.1 = (self.entity.rotation.1 + rot.1).max(DEG_TO_RAD_90);
-        self.entity.rotation.2 = (self.entity.rotation.2 + rot.2).max(DEG_TO_RAD_90);
+        self.entity.rotation.0 = self.entity.rotation.0 + rot.0;
+        if self.entity.rotation.0 > DEG_TO_RAD_180 {
+            self.entity.rotation.0 = DEG_TO_RAD_180
+        }
+        if self.entity.rotation.0 < -DEG_TO_RAD_180 {
+            self.entity.rotation.0 = -DEG_TO_RAD_180
+        }
+
+        self.entity.rotation.1 = self.entity.rotation.1 + rot.1;
+        self.entity.rotation.2 = self.entity.rotation.2 + rot.2;
     }
 
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {

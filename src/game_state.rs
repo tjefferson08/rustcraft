@@ -28,13 +28,13 @@ impl PlayingState {
         };
 
         let rect1: Rectangle = Rectangle::new();
-        let rect2: Rectangle = Rectangle::from_coords((1.0, 1.0, -2.0), (0.0, 0.0, 1.0));
+        // let rect2: Rectangle = Rectangle::from_coords((1.0, 1.0, -2.0), (0.0, 0.0, 1.0));
         playing_state.models.push(
             Box::new(rect1)
         );
-        playing_state.models.push(
-            Box::new(rect2)
-        );
+        // playing_state.models.push(
+        //     Box::new(rect2)
+        // );
 
         let immut_ps = playing_state;
         immut_ps
@@ -47,42 +47,25 @@ impl GameState for PlayingState {
     }
 
     fn process_event(&mut self, event: Event, delta_t: f32) -> () {
-        let speed = 0.05;
-        println!("speed, deltat: {} {}", speed, delta_t);
+        let speed = 50.0;
         match event {
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::Down)
-            ) => {
-                self.camera.update_position((0.0, -0.1, 0.0));
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::Up)
-            ) => {
-                self.camera.update_position((0.0, 0.1, 0.0));
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::Left)
-            ) => {
-                self.camera.update_position((-0.1, 0.0, 0.0));
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::Right)
-            ) => {
-                self.camera.update_position((0.1, 0.0, 0.0));
-            },
             glutin::Event::KeyboardInput(
                 glutin::ElementState::Pressed,
                 _,
                 Some(glutin::VirtualKeyCode::W)
             ) => {
+                println!(
+                    "camera position {} {} {}",
+                    self.camera.entity.position.0,
+                    self.camera.entity.position.1,
+                    self.camera.entity.position.2
+                );
+                println!(
+                    "camera rotation {} {} {}",
+                    self.camera.entity.rotation.0,
+                    self.camera.entity.rotation.1,
+                    self.camera.entity.rotation.2
+                );
                 let delta_pos = (
                     -&self.camera.entity.rotation.1.sin() * speed * delta_t,
                     0.0,
@@ -137,6 +120,8 @@ impl GameState for PlayingState {
     }
 
     fn update(&mut self) {
+        self.camera.update_rotation((0.01, 0.0, 0.0));
+
         for mut model in self.models.iter_mut() {
             // model.update_position((0.01, 0.0, 0.0));
             // model.update_rotation((0.01, 0.01, 0.0));

@@ -30,16 +30,16 @@ impl Application {
 
         let mut t: f32 = -0.5;
 
-        let now = Instant::now();
+        let mut now = Instant::now();
         let mut last_mouse = (0, 0);
         let mut current_mouse = (0, 0);
 
         loop {
-            t += 0.0002;
-            if t > 0.5 {
-                t = -0.5;
-            }
-            let delta_t = now.elapsed().as_secs() as f32;
+
+            // don't care about seconds portion
+            let time_since_previous_loop = now.elapsed();
+            let delta_t = (time_since_previous_loop.subsec_nanos() as f32) / 1000_000_000.0;
+            now = Instant::now();
 
             // do immutable things with self
             {
@@ -53,7 +53,7 @@ impl Application {
 
             // now we can do mutable things
             let events = window.display().poll_events();
-            let mut st = self.current_state_mut();
+            let mut current_state = self.current_state_mut();
             for event in events {
                 match event {
                     glium::glutin::Event::Closed => return,
@@ -65,12 +65,12 @@ impl Application {
                     glutin::Event::MouseMoved(x, y) => {
                         current_mouse = (x, y);
                     },
-                    ev => st.process_event(ev, delta_t),
+                    ev => current_state.process_event(ev, delta_t),
                 }
             }
-            st.process_mouse_move(((last_mouse.0 - current_mouse.0), (current_mouse.1 - last_mouse.1)));
+            current_state.process_mouse_move(((last_mouse.0 - current_mouse.0), (current_mouse.1 - last_mouse.1)));
             last_mouse = current_mouse;
-            st.update();
+            current_state.update();
         }
     }
 
