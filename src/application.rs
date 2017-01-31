@@ -28,8 +28,6 @@ impl Application {
 
         let texture = textures::load("src/textures/grass.png", window.display());
 
-        let mut t: f32 = -0.5;
-
         let mut now = Instant::now();
         let mut last_mouse = (0, 0);
         let mut current_mouse = (0, 0);

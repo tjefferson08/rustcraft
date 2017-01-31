@@ -16,73 +16,68 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(pos: (f32, f32, f32)) -> Camera {
+    pub fn new(pos: Vector3<f32>) -> Camera {
         Camera {
-            entity: Entity {
-                position: pos,
-                rotation: (0.0, 0.0, 0.0)
-            }
+            entity: Entity::new(pos)
         }
     }
 
     pub fn reset(&mut self) -> () {
-        self.entity.position = (0.0, 0.0, 0.0);
-        self.entity.rotation = (0.0, 0.0, 0.0);
+        self.entity.position = Vector3::new(0.0, 0.0, 0.0);
+        self.entity.rotation = Vector3::new(0.0, 0.0, 0.0);
     }
 
-    pub fn update_position(&mut self, pos: (f32, f32, f32)) -> () {
-        self.entity.position.0 += pos.0;
-        // self.entity.position.1 += pos.1;
-        self.entity.position.2 += pos.2;
+    pub fn update_position(&mut self, pos: Vector3<f32>) -> () {
+        self.entity.position += pos;
     }
 
-    pub fn update_rotation(&mut self, rot: (f32, f32, f32)) -> () {
+    pub fn update_rotation(&mut self, rot: Vector3<f32>) -> () {
         let print = false;
-        if print && (rot.0 > 0.0 || rot.1 > 0.0 || rot.2 > 0.0) {
+        if print && (rot.x > 0.0 || rot.y > 0.0 || rot.z > 0.0) {
             println!(
                 "about to rotate camera by {} {} {}",
-                rot.0,
-                rot.1,
-                rot.2
+                rot.x.to_degrees(),
+                rot.y.to_degrees(),
+                rot.z.to_degrees()
             );
             println!(
                 "camera rotation before update {} {} {}",
-                self.entity.rotation.0,
-                self.entity.rotation.1,
-                self.entity.rotation.2
+                self.entity.rotation.x.to_degrees(),
+                self.entity.rotation.y.to_degrees(),
+                self.entity.rotation.z.to_degrees()
             );
         }
-        self.entity.rotation.0 = self.entity.rotation.0 + rot.0;
+        self.entity.rotation.x = self.entity.rotation.x + rot.x;
 
         // up/down camera should stop at top/bottom
-        if self.entity.rotation.0 > DEG_TO_RAD_90 {
-            self.entity.rotation.0 = DEG_TO_RAD_90
+        if self.entity.rotation.x > DEG_TO_RAD_90 {
+            self.entity.rotation.x = DEG_TO_RAD_90
         }
-        if self.entity.rotation.0 < -DEG_TO_RAD_90 {
-            self.entity.rotation.0 = -DEG_TO_RAD_90
+        if self.entity.rotation.x < -DEG_TO_RAD_90 {
+            self.entity.rotation.x = -DEG_TO_RAD_90
         }
 
         // left/right camera should not stop, but let's keep values
         // b/t 0 and 2pi to stay sane
-        if self.entity.rotation.1 < 0.0 {
-            self.entity.rotation.1 = DEG_TO_RAD_360;
+        if self.entity.rotation.y < 0.0 {
+            self.entity.rotation.y = DEG_TO_RAD_360;
         }
 
-        if self.entity.rotation.1 > DEG_TO_RAD_360 {
-            self.entity.rotation.1 = 0.0;
+        if self.entity.rotation.y > DEG_TO_RAD_360 {
+            self.entity.rotation.y = 0.0;
         }
 
-        self.entity.rotation.1 = self.entity.rotation.1 + rot.1;
+        self.entity.rotation.y = self.entity.rotation.y + rot.y;
 
         // let's not worry about rotating the camera around Z axis
-        // self.entity.rotation.2 = self.entity.rotation.2 + rot.2;
+        // self.entity.rotation.z = self.entity.rotation.z + rot.z;
 
-        if print && (rot.0 > 0.0 || rot.1 > 0.0 || rot.2 > 0.0) {
+        if print && (rot.x > 0.0 || rot.y > 0.0 || rot.z > 0.0) {
             println!(
                 "camera rotation after update {} {} {}",
-                self.entity.rotation.0,
-                self.entity.rotation.1,
-                self.entity.rotation.2
+                self.entity.rotation.x.to_degrees(),
+                self.entity.rotation.y.to_degrees(),
+                self.entity.rotation.z.to_degrees()
             );
         }
     }

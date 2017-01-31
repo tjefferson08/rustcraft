@@ -4,6 +4,7 @@ extern crate cgmath;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{IndexBuffer,VertexBuffer};
 use model::{Model,Vertex};
+use entity::Entity;
 use cgmath::{
     Matrix3,
     Matrix4,
@@ -16,8 +17,7 @@ pub struct Cube {
     // display: &'a GlutinFacade,
 
     // (x, y, z)
-    position: (f32, f32, f32),
-    rotation: (f32, f32, f32)
+    entity: Entity
 }
 
 const VERTICES: [Vertex; 25] = [
@@ -89,35 +89,24 @@ const INDICES: [u16; 36] = [
 // impl<'a> Cube<'a> {
 impl Cube {
     // pub fn new(display: &'a GlutinFacade) -> Cube<'a> {
-    pub fn new() -> Cube {
-        Cube {
-            // display: display,
-            position: (0.0, 0.0, -5.0),
-            rotation: (0.0, 0.0, 0.0)
-        }
-    }
 
-    pub fn from_coords(pos: (f32, f32, f32), rot: (f32, f32, f32)) -> Cube {
+    pub fn from_position(pos: Vector3<f32>) -> Cube {
         Cube {
-            // display: display,
-            position: pos,
-            rotation: rot
+            entity: Entity::new(
+                pos
+            )
         }
     }
 }
 
 // impl <'a>Model for Cube<'a> {
 impl Model for Cube {
-    fn update_position(&mut self, new_position: (f32, f32, f32)) -> () {
-        self.position.0 += new_position.0;
-        self.position.1 += new_position.1;
-        self.position.2 += new_position.2;
+    fn update_position(&mut self, delta_pos: Vector3<f32>) -> () {
+        self.entity.position += delta_pos;
     }
 
-    fn update_rotation(&mut self, new_rotation: (f32, f32, f32)) -> () {
-        self.rotation.0 += new_rotation.0;
-        self.rotation.1 += new_rotation.1;
-        self.rotation.2 += new_rotation.2;
+    fn update_rotation(&mut self, delta_rot: Vector3<f32>) -> () {
+        self.entity.rotation += delta_rot;
     }
 
     fn positions(&self, disp: &GlutinFacade) -> VertexBuffer<Vertex> {
@@ -133,20 +122,20 @@ impl Model for Cube {
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
-        let (pos_x, pos_y, pos_z) = self.position;
-        let (rot_x, rot_y, rot_z) = self.rotation;
+        let pos = self.entity.position;
+        let rot = self.entity.rotation;
         let rot3_x: Matrix3<f32> = Matrix3::from_angle_x(
-            Rad(rot_x)
+            Rad(rot.x)
         );
         let rot3_y: Matrix3<f32> = Matrix3::from_angle_y(
-            Rad(rot_y)
+            Rad(rot.y)
         );
         let rot3_z: Matrix3<f32> = Matrix3::from_angle_z(
-            Rad(rot_z)
+            Rad(rot.z)
         );
         let model_matrix: Matrix4<f32> =
             Matrix4::from_translation(
-                Vector3::new(pos_x, pos_y, pos_z)
+                pos
             ) * Matrix4::from(rot3_x * rot3_y * rot3_z);
 
         model_matrix.into()
