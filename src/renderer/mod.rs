@@ -6,19 +6,26 @@ use glium::{Frame,Program,Surface};
 use model::{Model};
 use camera::Camera;
 use glium::backend::glutin_backend::GlutinFacade;
+use glium::uniforms::Sampler;
+use glium::texture::Texture2d;
 use shaders;
 use textures;
 
-pub struct Master<'a>{
-    display: &'a GlutinFacade,
+pub struct Master<'dis>{
+    display: &'dis GlutinFacade,
+    tex: Texture2d,
     pub target: Frame,
-    program: Program
+    program: Program,
+    // sampler: Sampler<
 }
 
-impl<'a> Master<'a> {
+impl<'dis> Master<'dis> {
     pub fn new(display: &GlutinFacade, target: Frame) -> Master {
         let vertex_shader_src = shaders::load("src/shaders/vertex_shader.glsl");
         let fragment_shader_src = shaders::load("src/shaders/fragment_shader.glsl");
+        let texture = textures::load("src/textures/grass.png", display);
+        // let texture = textures::load("src/textures/atlas.png", display);
+        // let sampler = texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
 
         Master {
             display: display,
@@ -28,7 +35,8 @@ impl<'a> Master<'a> {
                 &vertex_shader_src,
                 &fragment_shader_src,
                 None
-            ).unwrap()
+            ).unwrap(),
+            tex: texture
         }
     }
 
@@ -48,8 +56,6 @@ impl<'a> Master<'a> {
             .. Default::default()
         };
 
-        let texture = textures::load("src/textures/grass.png", self.display);
-        let sampler = texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
         self.target.draw(
             &model.positions(self.display),
             &model.indices(self.display),
@@ -58,7 +64,7 @@ impl<'a> Master<'a> {
                 model_matrix: model.model_matrix(),
                 view_matrix: camera.view_matrix(),
                 projection_matrix: camera.projection_matrix(),
-                grass_tex_sampler: sampler
+                grass_tex_sampler: self.tex.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
             },
             &draw_params
         ).unwrap()

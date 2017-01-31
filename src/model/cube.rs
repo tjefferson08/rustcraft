@@ -11,54 +11,16 @@ use cgmath::{
     Rad,
     Vector3
 };
+use textures::{Atlas,TextureCoordinates};
 
 // pub struct Cube<'a> {
 pub struct Cube {
     // display: &'a GlutinFacade,
 
     // (x, y, z)
-    entity: Entity
+    entity: Entity,
+    vertices: [Vertex; 25]
 }
-
-const VERTICES: [Vertex; 25] = [
-    Vertex { position: (0.0,  0.0, 0.0), tex_coords: (0.0, 0.0) },  // dummy vertexbecause model indices start at 1
-
-    // rear face
-    Vertex { position: (0.0, 1.0, 0.0), tex_coords: (0.0, 1.0) }, // rear upper left
-    Vertex { position: (0.0, 0.0, 0.0), tex_coords: (0.0, 0.0) }, // rear lower left
-    Vertex { position: (1.0, 1.0, 0.0), tex_coords: (1.0, 1.0) }, // rear upper right
-    Vertex { position: (1.0, 0.0, 0.0), tex_coords: (1.0, 0.0) }, // rear lower right
-
-    // front face
-    Vertex { position: (0.0, 1.0, 1.0), tex_coords: (0.0, 1.0) }, // front upper left
-    Vertex { position: (0.0, 0.0, 1.0), tex_coords: (0.0, 0.0) }, // front lower left
-    Vertex { position: (1.0, 1.0, 1.0), tex_coords: (1.0, 1.0) }, // front upper right
-    Vertex { position: (1.0, 0.0, 1.0), tex_coords: (1.0, 0.0) }, // front lower right
-
-    // right face
-    Vertex { position: (1.0, 1.0, 1.0), tex_coords: (0.0, 1.0) }, // front upper right
-    Vertex { position: (1.0, 0.0, 1.0), tex_coords: (0.0, 0.0) }, // front lower right
-    Vertex { position: (1.0, 1.0, 0.0), tex_coords: (1.0, 1.0) }, // rear upper right
-    Vertex { position: (1.0, 0.0, 0.0), tex_coords: (1.0, 0.0) }, // rear lower right
-
-    // left face
-    Vertex { position: (0.0, 1.0, 0.0), tex_coords: (0.0, 1.0) }, // rear upper left
-    Vertex { position: (0.0, 0.0, 0.0), tex_coords: (0.0, 0.0) }, // rear lower left
-    Vertex { position: (0.0, 1.0, 1.0), tex_coords: (1.0, 1.0) }, // front upper left
-    Vertex { position: (0.0, 0.0, 1.0), tex_coords: (1.0, 0.0) }, // front lower left
-
-    // bottom face
-    Vertex { position: (0.0, 0.0, 1.0), tex_coords: (0.0, 1.0) }, // front lower left
-    Vertex { position: (0.0, 0.0, 0.0), tex_coords: (0.0, 0.0) }, // rear lower left
-    Vertex { position: (1.0, 0.0, 1.0), tex_coords: (1.0, 1.0) }, // front lower right
-    Vertex { position: (1.0, 0.0, 0.0), tex_coords: (1.0, 0.0) }, // rear lower right
-
-    // top face
-    Vertex { position: (0.0, 1.0, 0.0), tex_coords: (0.0, 1.0) }, // rear upper left
-    Vertex { position: (0.0, 1.0, 1.0), tex_coords: (0.0, 0.0) }, // front upper left
-    Vertex { position: (1.0, 1.0, 0.0), tex_coords: (1.0, 1.0) }, // rear upper right
-    Vertex { position: (1.0, 1.0, 1.0), tex_coords: (1.0, 0.0) }, // front upper right
-];
 
 const INDICES: [u16; 36] = [
     // rear
@@ -91,10 +53,57 @@ impl Cube {
     // pub fn new(display: &'a GlutinFacade) -> Cube<'a> {
 
     pub fn from_position(pos: Vector3<f32>) -> Cube {
+        let atlas: Atlas = Atlas::new(16, 512);
+        let tex_coords_rear: TextureCoordinates = atlas.texture_coords_for(0, 1);
+        let tex_coords_front: TextureCoordinates = atlas.texture_coords_for(0, 1);
+        let tex_coords_right: TextureCoordinates = atlas.texture_coords_for(0, 1);
+        let tex_coords_left: TextureCoordinates = atlas.texture_coords_for(0, 1);
+        let tex_coords_top: TextureCoordinates = atlas.texture_coords_for(0, 0);
+        let tex_coords_bottom: TextureCoordinates = atlas.texture_coords_for(0, 2);
+
         Cube {
             entity: Entity::new(
                 pos
-            )
+            ),
+            vertices: [
+                Vertex { position: (0.0,  0.0, 0.0), tex_coords: (0.0, 0.0) },  // dummy vertexbecause model indices start at 1
+
+                // rear face
+                Vertex { position: (0.0, 1.0, 0.0), tex_coords: tex_coords_rear[0] }, // rear upper left
+                Vertex { position: (0.0, 0.0, 0.0), tex_coords: tex_coords_rear[1] }, // rear lower left
+                Vertex { position: (1.0, 1.0, 0.0), tex_coords: tex_coords_rear[2] }, // rear upper right
+                Vertex { position: (1.0, 0.0, 0.0), tex_coords: tex_coords_rear[3] }, // rear lower right
+
+                // front face
+                Vertex { position: (0.0, 1.0, 1.0), tex_coords: tex_coords_front[0] }, // front upper left
+                Vertex { position: (0.0, 0.0, 1.0), tex_coords: tex_coords_front[1] }, // front lower left
+                Vertex { position: (1.0, 1.0, 1.0), tex_coords: tex_coords_front[2] }, // front upper right
+                Vertex { position: (1.0, 0.0, 1.0), tex_coords: tex_coords_front[3] }, // front lower right
+
+                // right face
+                Vertex { position: (1.0, 1.0, 1.0), tex_coords: (0.0, 1.0) }, // front upper right
+                Vertex { position: (1.0, 0.0, 1.0), tex_coords: (0.0, 0.0) }, // front lower right
+                Vertex { position: (1.0, 1.0, 0.0), tex_coords: (1.0, 1.0) }, // rear upper right
+                Vertex { position: (1.0, 0.0, 0.0), tex_coords: (1.0, 0.0) }, // rear lower right
+
+                // left face
+                Vertex { position: (0.0, 1.0, 0.0), tex_coords: (0.0, 1.0) }, // rear upper left
+                Vertex { position: (0.0, 0.0, 0.0), tex_coords: (0.0, 0.0) }, // rear lower left
+                Vertex { position: (0.0, 1.0, 1.0), tex_coords: (1.0, 1.0) }, // front upper left
+                Vertex { position: (0.0, 0.0, 1.0), tex_coords: (1.0, 0.0) }, // front lower left
+
+                // bottom face
+                Vertex { position: (0.0, 0.0, 1.0), tex_coords: (0.0, 1.0) }, // front lower left
+                Vertex { position: (0.0, 0.0, 0.0), tex_coords: (0.0, 0.0) }, // rear lower left
+                Vertex { position: (1.0, 0.0, 1.0), tex_coords: (1.0, 1.0) }, // front lower right
+                Vertex { position: (1.0, 0.0, 0.0), tex_coords: (1.0, 0.0) }, // rear lower right
+
+                // top face
+                Vertex { position: (0.0, 1.0, 0.0), tex_coords: (0.0, 1.0) }, // rear upper left
+                Vertex { position: (0.0, 1.0, 1.0), tex_coords: (0.0, 0.0) }, // front upper left
+                Vertex { position: (1.0, 1.0, 0.0), tex_coords: (1.0, 1.0) }, // rear upper right
+                Vertex { position: (1.0, 1.0, 1.0), tex_coords: (1.0, 0.0) }, // front upper right
+            ]
         }
     }
 }
@@ -110,7 +119,7 @@ impl Model for Cube {
     }
 
     fn positions(&self, disp: &GlutinFacade) -> VertexBuffer<Vertex> {
-        VertexBuffer::new(disp, &VERTICES).unwrap()
+        VertexBuffer::new(disp, &self.vertices).unwrap()
     }
 
     fn indices(&self, disp: &GlutinFacade) -> IndexBuffer<u16> {
