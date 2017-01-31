@@ -83,21 +83,23 @@ impl Camera {
     }
 
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {
-        let (pos_x, pos_y, pos_z) = self.entity.position;
-        let (rot_x, rot_y, rot_z) = self.entity.rotation;
+        let pos = self.entity.position;
+        let rot = self.entity.rotation;
         let rot3_x: Matrix3<f32> = Matrix3::from_angle_x(
-            Rad(rot_x)
+            Rad(rot.x)
         );
         let rot3_y: Matrix3<f32> = Matrix3::from_angle_y(
-            Rad(rot_y)
+            Rad(rot.y)
         );
         let rot3_z: Matrix3<f32> = Matrix3::from_angle_z(
-            Rad(rot_z)
+            Rad(rot.z)
         );
-        let view_matrix: Matrix4<f32> =
+        let rot_3d = Matrix4::from(rot3_x * rot3_y * rot3_z);
+
+        let view_matrix: Matrix4<f32> = rot_3d *
             Matrix4::from_translation(
-                Vector3::new(pos_x, pos_y, pos_z).neg()
-            ) * Matrix4::from(rot3_x * rot3_y * rot3_z);
+                Vector3::new(pos.x, pos.y, pos.z).neg()
+            );
 
         view_matrix.into()
     }
