@@ -6,7 +6,6 @@ use window::Window;
 use std::time::Instant;
 use glium::glutin;
 use renderer;
-use textures;
 
 pub struct Application {
     state_stack: Vec<Box<GameState>>
@@ -25,8 +24,6 @@ impl Application {
 
     pub fn run_game_loop(&mut self) -> () {
         let window = Window::new();
-
-        let texture = textures::load("src/textures/grass.png", window.display());
 
         let mut now = Instant::now();
         let mut last_mouse = (0, 0);

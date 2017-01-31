@@ -7,6 +7,7 @@ use model::{Model};
 use camera::Camera;
 use glium::backend::glutin_backend::GlutinFacade;
 use shaders;
+use textures;
 
 pub struct Master<'a>{
     display: &'a GlutinFacade,
@@ -47,6 +48,8 @@ impl<'a> Master<'a> {
             .. Default::default()
         };
 
+        let texture = textures::load("src/textures/grass.png", self.display);
+        let sampler = texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
         self.target.draw(
             &model.positions(self.display),
             &model.indices(self.display),
@@ -54,7 +57,8 @@ impl<'a> Master<'a> {
             &uniform! {
                 model_matrix: model.model_matrix(),
                 view_matrix: camera.view_matrix(),
-                projection_matrix: camera.projection_matrix()
+                projection_matrix: camera.projection_matrix(),
+                grass_tex_sampler: sampler
             },
             &draw_params
         ).unwrap()
