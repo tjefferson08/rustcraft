@@ -28,7 +28,7 @@ impl Application {
         let mut now = Instant::now();
         let mut last_mouse = (0, 0);
         let mut current_mouse = (0, 0);
-
+        let mut pressed_keys: [bool; 256] = [false; 256];
         loop {
 
             // don't care about seconds portion
@@ -60,9 +60,17 @@ impl Application {
                     glutin::Event::MouseMoved(x, y) => {
                         current_mouse = (x, y);
                     },
-                    ev => current_state.process_event(ev, delta_t),
+                    glutin::Event::KeyboardInput(
+                        element_state,
+                        scan_code,
+                        _
+                    ) => {
+                        pressed_keys[scan_code as usize] = (element_state == glutin::ElementState::Pressed);
+                    },
+                    _ => ()
                 }
             }
+            current_state.process_keyboard_input(&pressed_keys, delta_t);
             current_state.process_mouse_move(
                 (
                     current_mouse.0 - last_mouse.0,

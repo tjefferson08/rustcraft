@@ -6,7 +6,7 @@ use glium::glutin::Event;
 use glium::glutin;
 use constants::*;
 use cgmath::Vector3;
-    
+
 pub struct PlayingState {
     models: Vec<Box<Model>>,
     camera: Camera
@@ -15,6 +15,7 @@ pub struct PlayingState {
 pub trait GameState {
     fn input(&self) -> ();
     fn process_event(&mut self, event: Event, delta_t: f32) -> ();
+    fn process_keyboard_input(&mut self, pressed_keys: &[bool; 256], delta_t: f32) -> ();
     fn process_mouse_move(&mut self, deflection: (i32, i32), delta_t: f32) -> ();
     fn update(&mut self, delta_t: f32) -> ();
     fn draw(&self, renderer: &mut Master, delta_t: f32) -> ();
@@ -61,83 +62,74 @@ impl GameState for PlayingState {
 
     fn process_event(&mut self, event: Event, delta_t: f32) -> () {
         let speed = 50.0;
+        let mut w_event_count = 0;
         match event {
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::R)
-            ) => {
-                self.camera.reset()
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::C)
-            ) => {
-                println!(
-                    "camera position {} {} {}",
-                    self.camera.entity.position.x,
-                    self.camera.entity.position.y,
-                    self.camera.entity.position.z
-                );
-                println!(
-                    "camera rotation {} {} {}",
-                    self.camera.entity.rotation.x,
-                    self.camera.entity.rotation.y,
-                    self.camera.entity.rotation.z
-                );
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::W)
-            ) => {
-                let delta_pos = Vector3::new(
-                    -((self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t),
-                    0.0,
-                    -((self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t)
-                );
-                self.camera.update_position(delta_pos);
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::S)
-            ) => {
-                let delta_pos = Vector3::new(
-                    (self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t,
-                    0.0,
-                    (self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t
-                );
-                self.camera.update_position(delta_pos);
-            },
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::A)
-            ) => {
-                let delta_pos = Vector3::new(
-                    -self.camera.entity.rotation.y.cos() * speed * delta_t,
-                    0.0,
-                    -self.camera.entity.rotation.y.sin() * speed * delta_t
-                );
-                self.camera.update_position(delta_pos);
-            },
-            
-            glutin::Event::KeyboardInput(
-                glutin::ElementState::Pressed,
-                _,
-                Some(glutin::VirtualKeyCode::D)
-            ) => {
-                let delta_pos = Vector3::new(
-                    self.camera.entity.rotation.y.cos() * speed * delta_t,
-                    0.0,
-                    self.camera.entity.rotation.y.sin() * speed * delta_t
-                );
-                self.camera.update_position(delta_pos);
-            },
             _ => ()
         }
+    }
+
+    fn process_keyboard_input(&mut self, pressed_keys: &[bool; 256], delta_t: f32) -> () {
+        let speed = 10.0;
+        let mut delta_pos = Vector3::new(0.0, 0.0, 0.0);
+
+        // R
+        if pressed_keys[15] {
+            self.camera.reset();
+        }
+
+        // C
+        if pressed_keys[8] {
+            println!(
+                "camera position {} {} {}",
+                self.camera.entity.position.x,
+                self.camera.entity.position.y,
+                self.camera.entity.position.z
+            );
+            println!(
+                "camera rotation {} {} {}",
+                self.camera.entity.rotation.x,
+                self.camera.entity.rotation.y,
+                self.camera.entity.rotation.z
+            );
+        }
+
+        // W
+        if pressed_keys[13] {
+            delta_pos += Vector3::new(
+                -((self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t),
+                0.0,
+                -((self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t)
+            );
+        }
+
+        // S
+        if pressed_keys[1] {
+            delta_pos += Vector3::new(
+                (self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t,
+                0.0,
+                (self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t
+            );
+        }
+
+        // A
+        if pressed_keys[0] {
+            delta_pos += Vector3::new(
+                -self.camera.entity.rotation.y.cos() * speed * delta_t,
+                0.0,
+                -self.camera.entity.rotation.y.sin() * speed * delta_t
+            );
+        }
+
+        // D
+        if pressed_keys[2] {
+            delta_pos += Vector3::new(
+                self.camera.entity.rotation.y.cos() * speed * delta_t,
+                0.0,
+                self.camera.entity.rotation.y.sin() * speed * delta_t
+            );
+        }
+
+        self.camera.update_position(delta_pos);
     }
 
     fn process_mouse_move(&mut self, deflection: (i32, i32), delta_t: f32) -> () {
@@ -147,13 +139,13 @@ impl GameState for PlayingState {
         if deflection.0.abs() > 700 || deflection.1.abs() > 700 {
             println!("GOOD GOD");
         }
-        
+
         let deflection_x = rotation_speed *
             (deflection.1 as f32).min(MAX_DEFLECTION).max(MIN_DEFLECTION);
-        
+
         let deflection_y = rotation_speed *
             (deflection.0 as f32).min(MAX_DEFLECTION).max(MIN_DEFLECTION);
-        
+
         // if deflection.0.abs() > 1 || deflection.1.abs() > 1 {
         //     println!("mouse deflection {} {}", deflection.0, deflection.1);
         //     println!("culled deflection {} {}", deflection_x, deflection_y);
