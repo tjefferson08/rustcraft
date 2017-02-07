@@ -2,7 +2,7 @@ extern crate glium;
 extern crate image;
 
 use game_state::{GameState, PlayingState};
-use window::Window;
+use window::{HEIGHT,WIDTH,Window};
 use std::time::Instant;
 use glium::glutin;
 use renderer;
@@ -49,6 +49,13 @@ impl Application {
             // now we can do mutable things
             let events = window.display().poll_events();
             let mut current_state = self.current_state_mut();
+
+            window.reset_cursor_position();
+
+            // assume current mouse is in 'reset' position (in case
+            // there ARE no mouse events this loop, we don't want to
+            // keep "pulling" in whatever direction we last deflected)
+            current_mouse = (WIDTH as i32, HEIGHT as i32);
             for event in events {
                 match event {
                     glium::glutin::Event::Closed => return,
@@ -65,32 +72,31 @@ impl Application {
                         scan_code,
                         _
                     ) => {
-                        pressed_keys[scan_code as usize] = (element_state == glutin::ElementState::Pressed);
+                        pressed_keys[scan_code as usize] = element_state == glutin::ElementState::Pressed;
                     },
                     _ => ()
                 }
             }
             current_state.process_keyboard_input(&pressed_keys, delta_t);
+
+            // measure deflection from center of screen (not sure why
+            // this is width/height and not 0.5 * width/height)
             current_state.process_mouse_move(
                 (
-                    current_mouse.0 - last_mouse.0,
-                    current_mouse.1 - last_mouse.1
+                    current_mouse.0 - WIDTH as i32,
+                    current_mouse.1 - HEIGHT as i32,
                 ),
                 delta_t
             );
-            last_mouse = current_mouse;
             current_state.update(delta_t);
-            // window.reset_cursor_position();
         }
     }
 
     pub fn push_state(&mut self, game_state: Box<GameState>) -> () {
-        println!("push state");
         self.state_stack.push(game_state)
     }
 
     pub fn pop_state(&mut self) -> () {
-        println!("pop state");
         self.state_stack.pop();
     }
 

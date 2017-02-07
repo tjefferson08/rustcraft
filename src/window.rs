@@ -25,11 +25,11 @@ impl Window {
         w
     }
 
-    // not a bad idea, but since we process deflection events instaed
-    // of smapling cursor position, this doesn't work quite right
-    // pub  fn reset_cursor_position(&self) -> () {
-    // self.display.get_window().unwrap().set_cursor_position(WIDTH as
-    // i32 / 2, HEIGHT as i32 / 2); }
+    pub fn reset_cursor_position(&self) -> () {
+        self.display.get_window()
+            .unwrap()
+            .set_cursor_position(WIDTH as i32 / 2, HEIGHT as i32 / 2);
+    }
 
 
     pub fn display(&self) -> &GlutinFacade {

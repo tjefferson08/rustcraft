@@ -133,11 +133,13 @@ impl GameState for PlayingState {
     }
 
     fn process_mouse_move(&mut self, deflection: (i32, i32), delta_t: f32) -> () {
+
         let rotation_speed = 1.0 * delta_t;
         const MAX_DEFLECTION: f32 = 10.0;
         const MIN_DEFLECTION: f32 = -10.0;
-        if deflection.0.abs() > 700 || deflection.1.abs() > 700 {
+        if deflection.0.abs() > 200 || deflection.1.abs() > 200 {
             println!("GOOD GOD");
+            return;
         }
 
         let deflection_x = rotation_speed *
