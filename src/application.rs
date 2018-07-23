@@ -3,6 +3,7 @@ extern crate image;
 
 use game_state::{GameState, PlayingState};
 use glium::glutin;
+use glium::glutin::{DeviceEvent, Event, EventsLoop, WindowEvent};
 use renderer;
 use std::time::Instant;
 use window::{Window, HEIGHT, WIDTH};
@@ -23,13 +24,15 @@ impl Application {
     }
 
     pub fn run_game_loop(&mut self) -> () {
-        let window = Window::new();
+        let mut events_loop = EventsLoop::new();
+        let window = Window::new(&events_loop);
 
         let mut now = Instant::now();
         let mut last_mouse = (0, 0);
         let mut current_mouse = (0, 0);
         let mut pressed_keys: [bool; 256] = [false; 256];
-        loop {
+        let mut closed = false;
+        while !closed {
             // don't care about seconds portion
             let time_since_previous_loop = now.elapsed();
             let delta_t = (time_since_previous_loop.subsec_nanos() as f32) / 1000_000_000.0;
@@ -46,46 +49,74 @@ impl Application {
                 master_renderer.update();
             }
 
-            // now we can do mutable things
-            let events = window.display().poll_events();
             let mut current_state = self.current_state_mut();
-
             window.reset_cursor_position();
 
-            // assume current mouse is in 'reset' position (in case
-            // there ARE no mouse events this loop, we don't want to
-            // keep "pulling" in whatever direction we last deflected)
-            current_mouse = (WIDTH as i32, HEIGHT as i32);
-            for event in events {
+            // now we can do mutable things
+            let events = events_loop.poll_events(|event| {
+                // assume current mouse is in 'reset' position (in case
+                // there ARE no mouse events this loop, we don't want to
+                // keep "pulling" in whatever direction we last deflected)
+                current_mouse = (WIDTH as i32, HEIGHT as i32);
                 match event {
-                    glium::glutin::Event::Closed => return,
-                    glutin::Event::KeyboardInput(
-                        glutin::ElementState::Pressed,
-                        _,
-                        Some(glutin::VirtualKeyCode::Escape),
-                    ) => return,
-                    glutin::Event::MouseMoved(x, y) => {
-                        current_mouse = (x, y);
-                    }
-                    glutin::Event::KeyboardInput(element_state, scan_code, _) => {
-                        pressed_keys[scan_code as usize] =
-                            element_state == glutin::ElementState::Pressed;
-                    }
+                    // N.B. glium::glutin::Event::WindowEvent is not
+                    // the same as glium::glutin::WindowEvent
+                    Event::WindowEvent { event, .. } => match event {
+                        WindowEvent::CloseRequested => {
+                            closed = true;
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                glium::glutin::KeyboardInput {
+                                    state: glutin::ElementState::Pressed,
+                                    virtual_keycode: Some(glutin::VirtualKeyCode::Escape),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            closed = true;
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                glium::glutin::KeyboardInput {
+                                    state, scancode, ..
+                                },
+                            ..
+                        } => {
+                            pressed_keys[scancode as usize] =
+                                state == glutin::ElementState::Pressed;
+                        }
+                        _ => return,
+                    },
+
+                    Event::DeviceEvent { event, .. } => match event {
+                        DeviceEvent::MouseMotion { delta } => {
+                            current_mouse = (delta.0 as i32, delta.1 as i32);
+                        }
+                        _ => return,
+                    },
                     _ => (),
                 }
-            }
-            current_state.process_keyboard_input(&pressed_keys, delta_t);
+                current_state.process_keyboard_input(&pressed_keys, delta_t);
 
-            // measure deflection from center of screen (not sure why
-            // this is width/height and not 0.5 * width/height)
-            current_state.process_mouse_move(
-                (
-                    current_mouse.0 - WIDTH as i32,
-                    current_mouse.1 - HEIGHT as i32,
-                ),
-                delta_t,
-            );
-            current_state.update(delta_t);
+                // measure deflection from center of screen (not sure why
+                // this is width/height and not 0.5 * width/height)
+                current_state.process_mouse_move(
+                    (
+                        current_mouse.0 - WIDTH as i32,
+                        current_mouse.1 - HEIGHT as i32,
+                    ),
+                    delta_t,
+                );
+                current_state.update(delta_t);
+            });
+            // match ev {
+            //     glutin::Event::WindowEvent { event, .. } => match event {
+            //         glutin::WindowEvent::CloseRequested => closed = true,
+            //         _ => (),
+            //     },
+            //     _ => (),
+            // });
         }
     }
 

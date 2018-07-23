@@ -4,11 +4,7 @@ extern crate image;
 
 use camera::Camera;
 use glium::texture::Texture2d;
-use glium::uniforms::Sampler;
-use glium::uniforms::Sampler;
 use glium::{Display, Frame, Program, Surface};
-use glium::{Frame, Program, Surface};
-use model::Model;
 use model::Model;
 use shaders;
 use textures;

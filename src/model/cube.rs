@@ -1,12 +1,10 @@
 extern crate cgmath;
 extern crate glium;
 
+use cgmath::{Deg, Matrix3, Matrix4, PerspectiveFov, Rad, Vector3};
 use entity::Entity;
-use glium::backend::glutin_backend::GlutinFacade;
 use glium::Display;
 use glium::{IndexBuffer, VertexBuffer};
-use glium::{IndexBuffer, VertexBuffer};
-use model::{Model, Vertex};
 use model::{Model, Vertex};
 use textures::{Atlas, TextureCoordinates};
 

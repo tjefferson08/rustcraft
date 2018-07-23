@@ -1,9 +1,7 @@
 pub use self::cube::Cube;
 
 use cgmath::Vector3;
-use glium::backend::glutin_backend::GlutinFacade;
 use glium::Display;
-use glium::{IndexBuffer, VertexBuffer};
 use glium::{IndexBuffer, VertexBuffer};
 
 mod cube;

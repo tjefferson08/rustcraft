@@ -1,12 +1,8 @@
 use camera::Camera;
 use cgmath::Vector3;
 use constants::*;
-use constants::*;
-use glium::glutin;
-use glium::glutin::Event;
 use glium::glutin::Event;
 use model::{Cube, Model};
-use renderer::Master;
 use renderer::Master;
 use std::vec::Vec;
 
