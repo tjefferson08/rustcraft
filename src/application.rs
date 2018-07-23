@@ -2,19 +2,19 @@ extern crate glium;
 extern crate image;
 
 use game_state::{GameState, PlayingState};
-use window::{HEIGHT,WIDTH,Window};
-use std::time::Instant;
 use glium::glutin;
 use renderer;
+use std::time::Instant;
+use window::{Window, HEIGHT, WIDTH};
 
 pub struct Application {
-    state_stack: Vec<Box<GameState>>
+    state_stack: Vec<Box<GameState>>,
 }
 
 impl Application {
     pub fn new() -> Application {
         let mut app = Application {
-            state_stack: Vec::new()
+            state_stack: Vec::new(),
         };
         let playing_state: PlayingState = PlayingState::new();
         let boxed_state: Box<PlayingState> = Box::new(playing_state);
@@ -30,7 +30,6 @@ impl Application {
         let mut current_mouse = (0, 0);
         let mut pressed_keys: [bool; 256] = [false; 256];
         loop {
-
             // don't care about seconds portion
             let time_since_previous_loop = now.elapsed();
             let delta_t = (time_since_previous_loop.subsec_nanos() as f32) / 1000_000_000.0;
@@ -39,7 +38,8 @@ impl Application {
             // do immutable things with self
             {
                 let current_state = self.current_state();
-                let mut master_renderer = renderer::Master::new(window.display(), window.display().draw());
+                let mut master_renderer =
+                    renderer::Master::new(window.display(), window.display().draw());
                 master_renderer.clear();
                 current_state.input();
                 current_state.draw(&mut master_renderer, delta_t);
@@ -62,19 +62,16 @@ impl Application {
                     glutin::Event::KeyboardInput(
                         glutin::ElementState::Pressed,
                         _,
-                        Some(glutin::VirtualKeyCode::Escape)
+                        Some(glutin::VirtualKeyCode::Escape),
                     ) => return,
                     glutin::Event::MouseMoved(x, y) => {
                         current_mouse = (x, y);
-                    },
-                    glutin::Event::KeyboardInput(
-                        element_state,
-                        scan_code,
-                        _
-                    ) => {
-                        pressed_keys[scan_code as usize] = element_state == glutin::ElementState::Pressed;
-                    },
-                    _ => ()
+                    }
+                    glutin::Event::KeyboardInput(element_state, scan_code, _) => {
+                        pressed_keys[scan_code as usize] =
+                            element_state == glutin::ElementState::Pressed;
+                    }
+                    _ => (),
                 }
             }
             current_state.process_keyboard_input(&pressed_keys, delta_t);
@@ -86,7 +83,7 @@ impl Application {
                     current_mouse.0 - WIDTH as i32,
                     current_mouse.1 - HEIGHT as i32,
                 ),
-                delta_t
+                delta_t,
             );
             current_state.update(delta_t);
         }
@@ -108,5 +105,3 @@ impl Application {
         self.state_stack.last_mut().unwrap()
     }
 }
-
-

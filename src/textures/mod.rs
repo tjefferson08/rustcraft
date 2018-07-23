@@ -1,24 +1,21 @@
 extern crate glium;
 extern crate image;
 
-use glium::texture::{RawImage2d,Texture2d};
-use glium::backend::glutin_backend::GlutinFacade;
+use glium::texture::{RawImage2d, Texture2d};
+use glium::Display;
 use std::path::Path;
 
-pub fn load(filename: &str, display: &GlutinFacade) -> Texture2d {
+pub fn load(filename: &str, display: &Display) -> Texture2d {
     let image = image::open(&Path::new(filename)).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = RawImage2d::from_raw_rgba_reversed(
-        image.into_raw(),
-        image_dimensions
-    );
+    let image = RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     Texture2d::new(display, image).unwrap()
 }
 
 // square textures is implied here
 pub struct Atlas {
     texture_size: u32,
-    image_size: u32
+    image_size: u32,
 }
 
 // CCW from upper right
@@ -28,7 +25,7 @@ impl Atlas {
     pub fn new(texture_size: u32, image_size: u32) -> Atlas {
         Atlas {
             texture_size: texture_size,
-            image_size: image_size
+            image_size: image_size,
         }
     }
 
@@ -48,11 +45,6 @@ impl Atlas {
         //     (x_min, y_min),
         //     (x_max, y_min)
         // ];
-        [
-            (0.0, 1.0),
-            (0.0, 0.0),
-            (1.0, 1.0),
-            (1.0, 0.0)
-        ]
+        [(0.0, 1.0), (0.0, 0.0), (1.0, 1.0), (1.0, 0.0)]
     }
 }

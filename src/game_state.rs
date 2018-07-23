@@ -1,15 +1,18 @@
-use std::vec::Vec;
-use model::{Cube,Model};
 use camera::Camera;
-use renderer::Master;
-use glium::glutin::Event;
-use glium::glutin;
-use constants::*;
 use cgmath::Vector3;
+use constants::*;
+use constants::*;
+use glium::glutin;
+use glium::glutin::Event;
+use glium::glutin::Event;
+use model::{Cube, Model};
+use renderer::Master;
+use renderer::Master;
+use std::vec::Vec;
 
 pub struct PlayingState {
     models: Vec<Box<Model>>,
-    camera: Camera
+    camera: Camera,
 }
 
 pub trait GameState {
@@ -23,10 +26,9 @@ pub trait GameState {
 
 impl PlayingState {
     pub fn new() -> PlayingState {
-
         let mut playing_state = PlayingState {
             models: Vec::new(),
-            camera: Camera::new(Vector3::new(0.0, 2.0, 0.0))
+            camera: Camera::new(Vector3::new(0.0, 2.0, 0.0)),
         };
 
         let cubeN = Cube::from_position(Vector3::new(0.0, 0.0, -5.0));
@@ -34,18 +36,10 @@ impl PlayingState {
         let cubeE = Cube::from_position(Vector3::new(5.0, 0.0, 0.0));
         let cubeW = Cube::from_position(Vector3::new(-5.0, 0.0, 0.0));
         // let rect2: Rectangle = Rectangle::from_coords((1.0, 1.0, -2.0), (0.0, 0.0, 1.0));
-        playing_state.models.push(
-            Box::new(cubeN)
-        );
-        playing_state.models.push(
-            Box::new(cubeS)
-        );
-        playing_state.models.push(
-            Box::new(cubeE)
-        );
-        playing_state.models.push(
-            Box::new(cubeW)
-        );
+        playing_state.models.push(Box::new(cubeN));
+        playing_state.models.push(Box::new(cubeS));
+        playing_state.models.push(Box::new(cubeE));
+        playing_state.models.push(Box::new(cubeW));
         // playing_state.models.push(
         //     Box::new(rect2)
         // );
@@ -64,7 +58,7 @@ impl GameState for PlayingState {
         let speed = 50.0;
         let mut w_event_count = 0;
         match event {
-            _ => ()
+            _ => (),
         }
     }
 
@@ -98,7 +92,7 @@ impl GameState for PlayingState {
             delta_pos += Vector3::new(
                 -((self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t),
                 0.0,
-                -((self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t)
+                -((self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t),
             );
         }
 
@@ -107,7 +101,7 @@ impl GameState for PlayingState {
             delta_pos += Vector3::new(
                 (self.camera.entity.rotation.y + DEG_TO_RAD_90).cos() * speed * delta_t,
                 0.0,
-                (self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t
+                (self.camera.entity.rotation.y + DEG_TO_RAD_90).sin() * speed * delta_t,
             );
         }
 
@@ -116,7 +110,7 @@ impl GameState for PlayingState {
             delta_pos += Vector3::new(
                 -self.camera.entity.rotation.y.cos() * speed * delta_t,
                 0.0,
-                -self.camera.entity.rotation.y.sin() * speed * delta_t
+                -self.camera.entity.rotation.y.sin() * speed * delta_t,
             );
         }
 
@@ -125,7 +119,7 @@ impl GameState for PlayingState {
             delta_pos += Vector3::new(
                 self.camera.entity.rotation.y.cos() * speed * delta_t,
                 0.0,
-                self.camera.entity.rotation.y.sin() * speed * delta_t
+                self.camera.entity.rotation.y.sin() * speed * delta_t,
             );
         }
 
@@ -133,7 +127,6 @@ impl GameState for PlayingState {
     }
 
     fn process_mouse_move(&mut self, deflection: (i32, i32), delta_t: f32) -> () {
-
         let rotation_speed = 1.0 * delta_t;
         const MAX_DEFLECTION: f32 = 10.0;
         const MIN_DEFLECTION: f32 = -10.0;
@@ -142,25 +135,27 @@ impl GameState for PlayingState {
             return;
         }
 
-        let deflection_x = rotation_speed *
-            (deflection.1 as f32).min(MAX_DEFLECTION).max(MIN_DEFLECTION);
+        let deflection_x = rotation_speed
+            * (deflection.1 as f32)
+                .min(MAX_DEFLECTION)
+                .max(MIN_DEFLECTION);
 
-        let deflection_y = rotation_speed *
-            (deflection.0 as f32).min(MAX_DEFLECTION).max(MIN_DEFLECTION);
+        let deflection_y = rotation_speed
+            * (deflection.0 as f32)
+                .min(MAX_DEFLECTION)
+                .max(MIN_DEFLECTION);
 
         // if deflection.0.abs() > 1 || deflection.1.abs() > 1 {
         //     println!("mouse deflection {} {}", deflection.0, deflection.1);
         //     println!("culled deflection {} {}", deflection_x, deflection_y);
         // }
 
-        self.camera.update_rotation(
-            Vector3::new(
-                deflection_x,
-                deflection_y,
-                // 0.0,
-                0.0
-            )
-        );
+        self.camera.update_rotation(Vector3::new(
+            deflection_x,
+            deflection_y,
+            // 0.0,
+            0.0,
+        ));
     }
 
     fn update(&mut self, delta_t: f32) {
@@ -171,11 +166,8 @@ impl GameState for PlayingState {
     }
 
     fn draw(&self, renderer: &mut Master, delta_t: f32) {
-        for  model in self.models.iter() {
-            renderer.draw(
-                model.as_ref(),
-                &self.camera
-            );
+        for model in self.models.iter() {
+            renderer.draw(model.as_ref(), &self.camera);
         }
     }
 }

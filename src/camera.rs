@@ -1,24 +1,17 @@
+use cgmath::{Deg, Matrix3, Matrix4, PerspectiveFov, Rad, Vector3};
+use constants::*;
 use entity::Entity;
-use cgmath::{
-    Deg,
-    Matrix3,
-    Matrix4,
-    PerspectiveFov,
-    Rad,
-    Vector3
-};
 use std::ops::Neg;
 use window::{HEIGHT as WINDOW_HEIGHT, WIDTH as WINDOW_WIDTH};
-use constants::*;
 
 pub struct Camera {
-    pub entity: Entity
+    pub entity: Entity,
 }
 
 impl Camera {
     pub fn new(pos: Vector3<f32>) -> Camera {
         Camera {
-            entity: Entity::new(pos)
+            entity: Entity::new(pos),
         }
     }
 
@@ -85,34 +78,24 @@ impl Camera {
     pub fn view_matrix(&self) -> [[f32; 4]; 4] {
         let pos = self.entity.position;
         let rot = self.entity.rotation;
-        let rot3_x: Matrix3<f32> = Matrix3::from_angle_x(
-            Rad(rot.x)
-        );
-        let rot3_y: Matrix3<f32> = Matrix3::from_angle_y(
-            Rad(rot.y)
-        );
-        let rot3_z: Matrix3<f32> = Matrix3::from_angle_z(
-            Rad(rot.z)
-        );
+        let rot3_x: Matrix3<f32> = Matrix3::from_angle_x(Rad(rot.x));
+        let rot3_y: Matrix3<f32> = Matrix3::from_angle_y(Rad(rot.y));
+        let rot3_z: Matrix3<f32> = Matrix3::from_angle_z(Rad(rot.z));
         let rot_3d = Matrix4::from(rot3_x * rot3_y * rot3_z);
 
-        let view_matrix: Matrix4<f32> = rot_3d *
-            Matrix4::from_translation(
-                Vector3::new(pos.x, pos.y, pos.z).neg()
-            );
+        let view_matrix: Matrix4<f32> =
+            rot_3d * Matrix4::from_translation(Vector3::new(pos.x, pos.y, pos.z).neg());
 
         view_matrix.into()
     }
 
     pub fn projection_matrix(&self) -> [[f32; 4]; 4] {
-        let mat = Matrix4::from(
-            PerspectiveFov {
-                fovy: Deg(120.0f32).into(),
-                aspect: WINDOW_WIDTH / WINDOW_HEIGHT,
-                near: 0.001,
-                far: 1000.0
-            }
-        );
+        let mat = Matrix4::from(PerspectiveFov {
+            fovy: Deg(120.0f32).into(),
+            aspect: WINDOW_WIDTH / WINDOW_HEIGHT,
+            near: 0.001,
+            far: 1000.0,
+        });
         mat.into()
     }
 }

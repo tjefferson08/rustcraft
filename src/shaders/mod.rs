@@ -1,7 +1,7 @@
-use std::fs::File;
-use std::path::Path;
-use std::io::Read;
 use std::error::Error;
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 
 pub fn load(filename: &str) -> String {
     let path = Path::new(filename);
@@ -15,6 +15,6 @@ pub fn load(filename: &str) -> String {
     let mut s = String::new();
     match file.read_to_string(&mut s) {
         Err(why) => panic!("couldn't read {}: {}", display, why.description()),
-        Ok(_) => return s
+        Ok(_) => return s,
     }
 }
