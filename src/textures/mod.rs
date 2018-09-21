@@ -34,11 +34,11 @@ impl Atlas {
     }
 
     pub fn texture_coords_for(&self, x: u32, y: u32) -> TextureCoordinates {
-        let unit_size = 1.0 / self.textures_per_row() as f32;
-        let x_min = (x as f32) * unit_size;
-        let y_min = (y as f32) * unit_size;
-        let x_max = x_min + unit_size;
-        let y_max = y_min + unit_size;
+        // let unit_size = 1.0 / self.textures_per_row() as f32;
+        // let x_min = (x as f32) * unit_size;
+        // let y_min = (y as f32) * unit_size;
+        // let x_max = x_min + unit_size;
+        // let y_max = y_min + unit_size;
         // return [
         //     (x_max, y_max),
         //     (x_min, y_max),

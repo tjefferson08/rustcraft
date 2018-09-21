@@ -1,6 +1,6 @@
 extern crate glium;
 
-use glium::glutin::dpi::LogicalSize;
+use glium::glutin::dpi::{LogicalPosition, LogicalSize};
 use glium::glutin::{ContextBuilder, EventsLoop, WindowBuilder};
 use glium::Display;
 
@@ -18,9 +18,11 @@ impl Window {
             .with_title("Hello world");
 
         let context = ContextBuilder::new().with_depth_buffer(24);
+        let display = Display::new(builder, context, events_loop).unwrap();
+        display.gl_window().grab_cursor(true).unwrap();
 
         let w = Window {
-            display: Display::new(builder, context, events_loop).unwrap(),
+            display: display
         };
 
         // w.display.get_window().unwrap().hide_cursor();
@@ -31,11 +33,13 @@ impl Window {
         w
     }
 
+    // Probably not needed (much) since `grab_cursor` keeps the cursor
+    // in the display boundaries
     pub fn reset_cursor_position(&self) -> () {
-        // self.display
-        //     .get_window()
-        //     .unwrap()
-        //     .set_cursor_position(WIDTH as i32 / 2, HEIGHT as i32 / 2);
+        self.display
+            .gl_window()
+            .set_cursor_position(LogicalPosition::new(WIDTH as f64 / 2.0, HEIGHT as f64 / 2.0))
+            .unwrap();
     }
 
     pub fn display(&self) -> &Display {

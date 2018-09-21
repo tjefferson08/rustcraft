@@ -28,7 +28,6 @@ impl Application {
         let window = Window::new(&events_loop);
 
         let mut now = Instant::now();
-        let mut last_mouse = (0, 0);
         let mut current_mouse = (0, 0);
         let mut pressed_keys: [bool; 256] = [false; 256];
         let mut closed = false;
@@ -50,7 +49,6 @@ impl Application {
             }
 
             let mut current_state = self.current_state_mut();
-            window.reset_cursor_position();
 
             // now we can do mutable things
             let events = events_loop.poll_events(|event| {
@@ -58,6 +56,7 @@ impl Application {
                 // there ARE no mouse events this loop, we don't want to
                 // keep "pulling" in whatever direction we last deflected)
                 current_mouse = (WIDTH as i32, HEIGHT as i32);
+                let mut mouse_deflection = (0, 0);
                 match event {
                     // N.B. glium::glutin::Event::WindowEvent is not
                     // the same as glium::glutin::WindowEvent
@@ -91,7 +90,7 @@ impl Application {
 
                     Event::DeviceEvent { event, .. } => match event {
                         DeviceEvent::MouseMotion { delta } => {
-                            current_mouse = (delta.0 as i32, delta.1 as i32);
+                            mouse_deflection = (delta.0 as i32, delta.1 as i32);
                         }
                         _ => return,
                     },
@@ -102,21 +101,11 @@ impl Application {
                 // measure deflection from center of screen (not sure why
                 // this is width/height and not 0.5 * width/height)
                 current_state.process_mouse_move(
-                    (
-                        current_mouse.0 - WIDTH as i32,
-                        current_mouse.1 - HEIGHT as i32,
-                    ),
+                    mouse_deflection,
                     delta_t,
                 );
-                current_state.update(delta_t);
             });
-            // match ev {
-            //     glutin::Event::WindowEvent { event, .. } => match event {
-            //         glutin::WindowEvent::CloseRequested => closed = true,
-            //         _ => (),
-            //     },
-            //     _ => (),
-            // });
+            current_state.update(delta_t);
         }
     }
 
