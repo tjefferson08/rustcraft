@@ -49,6 +49,7 @@ impl Application {
             }
 
             let mut current_state = self.current_state_mut();
+            let mut mouse_deflection = (0, 0);
 
             // now we can do mutable things
             let events = events_loop.poll_events(|event| {
@@ -56,7 +57,6 @@ impl Application {
                 // there ARE no mouse events this loop, we don't want to
                 // keep "pulling" in whatever direction we last deflected)
                 current_mouse = (WIDTH as i32, HEIGHT as i32);
-                let mut mouse_deflection = (0, 0);
                 match event {
                     // N.B. glium::glutin::Event::WindowEvent is not
                     // the same as glium::glutin::WindowEvent
@@ -90,21 +90,21 @@ impl Application {
 
                     Event::DeviceEvent { event, .. } => match event {
                         DeviceEvent::MouseMotion { delta } => {
+                            if mouse_deflection != (0, 0) {
+                                println!(
+                                    "throwing away old deflection {}, {}",
+                                    mouse_deflection.0, mouse_deflection.1
+                                );
+                            }
                             mouse_deflection = (delta.0 as i32, delta.1 as i32);
                         }
                         _ => return,
                     },
                     _ => (),
                 }
-                current_state.process_keyboard_input(&pressed_keys, delta_t);
-
-                // measure deflection from center of screen (not sure why
-                // this is width/height and not 0.5 * width/height)
-                current_state.process_mouse_move(
-                    mouse_deflection,
-                    delta_t,
-                );
             });
+            current_state.process_keyboard_input(&pressed_keys, delta_t);
+            current_state.process_mouse_move(mouse_deflection, delta_t);
             current_state.update(delta_t);
         }
     }
